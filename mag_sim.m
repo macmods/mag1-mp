@@ -34,7 +34,7 @@ global param % made global and used by most functions; nothing within code chang
 param = param_macrocystis % should have a file per species
 
 % Simulation Input
-time = simtime([2001 1 1; 2001 12 31]); % start time and stop time of simulation
+time = simtime([2005 1 1; 2005 12 31]); % start time and stop time of simulation
 farm = farmdesign;  % loads 1-d farm
 envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
 clear dir_ROMS dir_WAVE
@@ -62,7 +62,7 @@ for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     %% GROWTH MODEL
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
-    [kelp, DON(:,Gr_step), PON(:,Gr_step)] = mag(kelp,envt,farm,time,ROMS_step,growth_step);
-    kelpshort(1,Gr_step) = min(kelp.Height_tot);
-    
+    [kelp, ~, ~] = mag(kelp,envt,farm,time,ROMS_step,growth_step);
+        
 end
+clear Gr_step growth_step ROMS_step 
