@@ -25,16 +25,17 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+clear all
 % Directories containing input environmental data
 dir_ROMS   = 'D:\Data\SBC_Farm\SBCfarm_';
 dir_WAVE   = 'D:\Data\SBC_Farm\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
-param = param_macrocystis % should have a file per species
+param = param_macrocystis; % should have a file per species
 
 % Simulation Input
-time = simtime([2005 1 1; 2005 12 31]); % start time and stop time of simulation
+time = simtime([2001 1 1; 2001 12 31]); % start time and stop time of simulation
 farm = farmdesign;  % loads 1-d farm
 envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
 clear dir_ROMS dir_WAVE
@@ -58,7 +59,6 @@ for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,ROMS_step);
-     
     %% GROWTH MODEL
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
