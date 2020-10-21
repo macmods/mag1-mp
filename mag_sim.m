@@ -25,7 +25,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all
+% clear all
 % Directories containing input environmental data
 dir_ROMS   = 'D:\Data\SBC_Farm\SBCfarm_';
 dir_WAVE   = 'D:\Data\SBC_Farm\';
@@ -35,13 +35,13 @@ global param % made global and used by most functions; nothing within code chang
 param = param_macrocystis; % should have a file per species
 
 % Simulation Input
-time = simtime([2001 1 1; 2001 12 31]); % start time and stop time of simulation
-farm = farmdesign;  % loads 1-d farm
-envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
-clear dir_ROMS dir_WAVE
-
+for year = 1999:2004
+    time = simtime([year 1 1; year 12 31]); % start time and stop time of simulation
+    farm = farmdesign;  % loads 1-d farm
+    envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
+    
 % Simulation Output; preallocate space
-kelp_ar = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
+kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
 
 % Seed the Farm (Initialize Biomass)
 % [frond ID, depth]
@@ -55,14 +55,20 @@ for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
-    kelp_ar(1,Gr_step) = nansum(nansum(kelp.Nf)); % mg N/m2
-
+    kelp_b(1,Gr_step) = nansum(nansum(kelp.Nf./param.Qmin)./1e3); % kg-dry/m
+    
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,ROMS_step);
+    
     %% GROWTH MODEL
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
-    [kelp, ~, ~] = mag(kelp,envt,farm,time,ROMS_step,growth_step);
+    kelp = mag(kelp,envt,farm,time,ROMS_step,growth_step);
         
 end
 clear Gr_step growth_step ROMS_step 
+
+simid = sprintf('Y%d',year)
+mag1.(simid) = kelp_b;
+
+end

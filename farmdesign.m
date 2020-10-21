@@ -19,6 +19,6 @@ function farm = farmdesign
         
 %% track fronds (preallocate and initialize)
 
-    farm.frondcount = 100; % typically need less than 50 per year;
+    farm.frondcount = 300; % typically need less than 50 per year;
 
 end
