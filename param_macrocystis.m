@@ -1,4 +1,4 @@
-function param = param_v1
+function param = param_macrocystis
 % structure with the named parameters of the model
 
     param = struct(...
@@ -19,26 +19,19 @@ function param = param_v1
         'PAR_Ksw', 0.0384,... % [m-1]
         'PAR_Kchla', 0.0138,... % [m2/mg chl-a]
         'PAR_KNf', 0.0001,... % [m2/mg N]
-        'Hmax', 30,... % [m]
-        'Frond_init', [0.042/10/24 0.17/24],... % [h-1]
-        'Age_max', 150*24,... % [h]
+        'kcap', 7e3,... % space limited capacity (g-dry m-2)
         'd_dissolved', 0.002/24,... % [h-1]
         'd_wave_m',0.000455,... % [h-1]
-        'd_blade', 0.009/24,... % [h-1]
-        'd_frond', 0.1/24,... % [h-1]
+        'd_frond', (0.1+0.009)/24,... % frond+blade [h-1]
         'dry_wet',0.094,... % [g(dry)/g(wet)]
-        'Nf_capacity_subsurface', 109.98,... % [mg N/m]
-        'Nf_capacity_watercolumn',98.7,... % [mg N/m]
-        'Nf_capacity_canopy', 243.46,... % [mg N/m]
+        'Nf_capacity', [],... % [mg N/m]
         'Biomass_surfacearea_subsurface', 32.2/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_watercolumn', 10.9/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_canopy', 58.7/1e4,... % [m2/g(wet)]
         'Blade_stipe', [2.32 13.36 23.39],...
         'remin', 0.01/24,... % [h-1]
-        'MW_N', 14.006720,... % [g/mol]
-        'MW_NO3', 62.0049,... % [g/mol]
-        'MW_NH4', 18.038508); % [g/mol]
-       
+        'MW_N', 14.006720); % [g/mol]
+        
 end
 
 

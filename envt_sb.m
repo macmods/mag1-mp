@@ -156,7 +156,7 @@ clear u v w
             
             
 %% Wave period, Significant wave height
-NDCPfilename = strcat(dir_WAVE,'NDBC46053\NDCP46053.mat');
+NDCPfilename = strcat(dir_WAVE,'NDCP46053.mat');
 
     % NDCP; mat file
     % Column 1 = matlab time vec

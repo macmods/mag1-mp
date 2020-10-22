@@ -2,13 +2,14 @@
 %
 %  20200630, Christina Frieder
 % 
-%  mag1d - model of macroalgal growth in 1-D
+%  mag1 - model of macroalgal growth in 1-D
+%  volume-averaged; not tracking fronds
 %
 %  State Variables:
 %    NO3, Concentration of nitrate in seawater, [umol NO3/m3]
 %    NH4, Concentration of ammonium in seawater, [umol NH4/m3]
-%    Ns, macroalgal stored nitrogen, [mg N/m frond]
-%    Nf, macroalgal fixed nitrogen, [mg N/m frond]
+%    Ns, macroalgal stored nitrogen, [mg N/m3]
+%    Nf, macroalgal fixed nitrogen, [mg N/m3]
 %    DON, dissolved organic nitrogen, [mmol N/m3]
 %    PON, particulate organic nitrogen, [mg N/m3]
 %  Farm Design: 1 dimensional(depth, z) [meters]
@@ -27,8 +28,8 @@
 
 % clear all
 % Directories containing input environmental data
-dir_ROMS   = 'D:\Data\SBC_Farm\SBCfarm_';
-dir_WAVE   = 'D:\Data\SBC_Farm\';
+dir_ROMS   = 'D:\github\mag1-mp\envtl_data\SBCfarm_';
+dir_WAVE   = 'D:\github\mag1-mp\envtl_data\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
@@ -45,25 +46,25 @@ kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time st
 
 % Seed the Farm (Initialize Biomass)
 % [frond ID, depth]
-kelp = seedfarm(farm,time);
+kelp = seedfarm(farm);
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
 for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
-    Gr_step = growth_step / time.dt_Gr;% growth counter
-    ROMS_step = ceil(Gr_step*time.dt_Gr/time.dt_ROMS); % ROMS counter
+    gr_counter = growth_step / time.dt_Gr;% growth counter
+    envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
-    kelp_b(1,Gr_step) = nansum(nansum(kelp.Nf./param.Qmin)./1e3); % kg-dry/m
+    kelp_b(1,gr_counter) = nansum(nansum(kelp.Nf./param.Qmin)./1e3); % kg-dry/m
     
     %% DERIVED ENVT
-    envt.PARz  = canopyshading(kelp,envt,farm,ROMS_step);
+    envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
     
     %% GROWTH MODEL
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
-    kelp = mag(kelp,envt,farm,time,ROMS_step,growth_step);
+    kelp = mag(kelp,envt,farm,time,envt_counter,growth_step);
         
 end
 clear Gr_step growth_step ROMS_step 

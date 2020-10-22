@@ -1,5 +1,5 @@
 function kelp = kelpchar(kelp,farm)
-% Calculate biological characteristics from Nf, Ns, and Age (known)
+% Calculate biological characteristics from Nf, Ns (known)
 % function dependency: type_vX.m, height_vX.m
 %
 % OUTPUT:  
@@ -37,19 +37,18 @@ global param
 %% Calculate DERIVED variables on a per frond basis
 
     % KNOWN STATE VARIABLES
-    % Ns, Nf, Age known 
+    % Ns, Nf 
     % Create temporary variables
     
         Ns = kelp.Ns;
         Nf = kelp.Nf;
-        Age= kelp.Age;
-
+        
 
     % DERIVED VARIABLES
     
         kelp.Q = param.Qmin .* (1 + nansum(Ns,2) ./ nansum(Nf,2));
         kelp.B = Nf ./ param.Qmin;
-        kelp.type = frondtype(Nf,Age,farm);
+        kelp.type = frondtype(Nf,farm);
         kelp.Height = frondheight(Nf,farm);
         kelp.Height_tot = nansum(kelp.Height,2);
             kelp.Height_tot(kelp.Height_tot == 0) = NaN;
