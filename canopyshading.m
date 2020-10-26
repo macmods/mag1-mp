@@ -17,7 +17,7 @@ global param
     Nf = kelp.Nf;
 
     % redistribute amount of Nf at surface 
-    canopyHeight = kelp.Height(:,1);
+    canopyHeight = kelp.height-farm.z_cult; canopyHeight(canopyHeight<0) = 0;
     Nf(:,1) = Nf(:,1) ./ canopyHeight; % divide Nf by length of frond
 
     % replacement of NaN with zero for mathematical reasons   

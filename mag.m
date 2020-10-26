@@ -1,4 +1,4 @@
-function [kelp, DON, PON] = mag(kelp,envt,farm,time,ROMS_step,growth_step)
+function [kelp, DON, PON] = mag(kelp,envt,farm,time,envt_counter,growth_step)
 % Calculate uptake and growth to derive delta_Ns and delta_Nt
 % function dependencies: uptake, growth
 %
@@ -10,76 +10,61 @@ global param
                 
             
 %% KELP - Known Variables
+% create temporary variables
 
     Ns = kelp.Ns;
     Nf = kelp.Nf;
-    Nf_capacity = kelp.Nf_capacity;
-    Age = kelp.Age;
                 
                 
 %% UPTAKE
 % [mg N/g(dry)/h]: NO3+NH4+Urea
 
-    Uptake = uptake(kelp,envt,farm,ROMS_step);   
+    Uptake = uptake(kelp,envt,farm,envt_counter);   
 
     
 %% GROWTH
 % Growth limited by internal nutrients, temperature, PAR, and height (stops
 % growing once reaches max height); [h-1]
 
-    Growth = growth(kelp,envt,farm,ROMS_step);       
+    Growth = growth(kelp,envt,farm,envt_counter);       
            
 %% MORTALTIY                
 % d_wave = frond loss due to waves; dependent on Hs, significant
 % wave height [m]; Rodrigues et al. 2018 demonstrates linear relationship
 % between Hs and frond loss rate [h-1] (continuous)
 
-    M_wave  = param.d_wave_m .* envt.Hs(1,ROMS_step);
+    M_wave  = param.d_wave_m .* envt.Hs(1,envt_counter);
 
 % d_blade = blade erosion [h-1] (continuous); Multiplied by the
 % frBlade -> fraction of total as blade
     
     M_blade = param.d_blade .* kelp.frBlade;  
+    M_tot = M_wave + M_blade + param.d_frond;
     
-           
+    
 %% Nf at t+1
             
 % Nf(t+1) = Nf(t) + Growth - Mortality
 
      % change in Nf
      dNf1 = Growth .* Ns .* time.dt_Gr ...
-          - M_blade .* Nf .* time.dt_Gr ...
-          - M_wave .* Nf .* time.dt_Gr;
+          - M_tot .* Nf .* time.dt_Gr;
 
-     Nf_new = sum(cat(3,Nf,dNf1),3); % add dNf to Nf
+     Nf_new = Nf + dNf1; % add dNf to Nf
 
-                 
-%% Frond Characteristics, t+1          
-
-% Nf_Capacity is based on height at current time step but is important for
-% allometric conversions at t+1 [mg N/g(dry)/m frond]
-
-% Nf_capacity changes when frond transitions from subsurface to canopy
-% type. Create a smoothing function based on height that slowly
-% transitions from subsurface to watercolum allometry. Otherwise there
-% will be an abrupt redistribution of Nf upwards.
-
-    Nf_capacity_new = (param.Nf_capacity_subsurface-param.Nf_capacity_watercolumn)./(1+exp(1.5.*(kelp.Height_tot-(farm.z_cult*1.2))))+ param.Nf_capacity_watercolumn;
-  
-
-% Calculate Age at t+1; 9999, indicator for "harvest" cut [hours]
-
-    Age_new = Age + time.dt_Gr;
-                           
-                
+     
 %% APICAL GROWTH
-% Nf redistributed upwards if Nf > Nf_capacity. Evaluate each depth bin
-% separately from the bottom towards the surface. The surface is left alone
-% so that the canopy accumulates. The surface bin is z=1.
+% Nf redistributed upwards if Nf > Nf_capacity. 
 
-        
-    for z = farm.z_cult:-1:2 
-
+    % get total height for Nf_new
+    B_new = nansum(Nf_new) ./ param.Qmin; % g-dry
+    h_new = (param.Hmax .* B_new./1e3) ./ (param.Kh + B_new./1e3);
+    
+    z_up = 1;
+    for z = farm.z_cult:-1:farm.z_cult-floor(h_new)
+    
+        B_z = (H1 .* param.Kh) ./ (param.Hmax - H1); % g-dry
+    
         % delNf is the amount of biomass greater than
         % Nf_capacity. Nf_capacity was previously derived and
         % is dependent on height as kelp transitions from

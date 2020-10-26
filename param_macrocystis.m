@@ -14,17 +14,19 @@ function param = param_macrocystis
         'Tmin',14,... % [Celcius]
         'Tmax',20,... % [Celcius]
         'Tlim',23,... % [Celcius]
-        'kPAR', -1/3,...
+        'kPAR', -1/3,... % shape of growth-light relationship
         'PARc', 1.7864,... % [W/m2]
         'PAR_Ksw', 0.0384,... % [m-1]
         'PAR_Kchla', 0.0138,... % [m2/mg chl-a]
         'PAR_KNf', 0.0001,... % [m2/mg N]
+        'Hmax', 30,... % maximum height (m)
+        'Kh', 0.75,... % shape of biomass-to-length relationship
         'kcap', 7e3,... % space limited capacity (g-dry m-2)
         'd_dissolved', 0.002/24,... % [h-1]
         'd_wave_m',0.000455,... % [h-1]
-        'd_frond', (0.1+0.009)/24,... % frond+blade [h-1]
+        'd_blade', 0.009/24, ... % [h-1]
+        'd_frond', 0.1/24,... % [h-1]
         'dry_wet',0.094,... % [g(dry)/g(wet)]
-        'Nf_capacity', [],... % [mg N/m]
         'Biomass_surfacearea_subsurface', 32.2/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_watercolumn', 10.9/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_canopy', 58.7/1e4,... % [m2/g(wet)]

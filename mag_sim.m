@@ -26,7 +26,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% clear all
+clear all
 % Directories containing input environmental data
 dir_ROMS   = 'D:\github\mag1-mp\envtl_data\SBCfarm_';
 dir_WAVE   = 'D:\github\mag1-mp\envtl_data\';
@@ -41,12 +41,12 @@ for year = 1999:2004
     farm = farmdesign;  % loads 1-d farm
     envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
     
-% Simulation Output; preallocate space
-kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
+    % Simulation Output; preallocate space
+    kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
 
-% Seed the Farm (Initialize Biomass)
-% [frond ID, depth]
-kelp = seedfarm(farm);
+    % Seed the Farm (Initialize Biomass)
+    % [frond ID, depth]
+    kelp = seedfarm(farm);
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
 for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]

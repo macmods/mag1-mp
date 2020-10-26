@@ -1,8 +1,7 @@
-function [Growth, gQ_fr, gT_fr, gE_fr, gH_fr] = growth(kelp,envt,farm,ROMS_step)
+function [Growth, gQ, gT, gE, gH] = growth(kelp,envt,farm,envt_counter)
 % Growth, nitrogen movement from Ns to Nf = umax*gQ*gT*gE*gH; [per hour]
 %
-% Input: (Q,Type,Height,envt,farm,envt_step,kelploc)
-%        Growth only calculated for subsurface and canopy fronds
+% Input: (Q,B,envt,farm,envt_counter)
 %
 % Output: 
 %   Growth, [h-1]
@@ -15,36 +14,22 @@ function [Growth, gQ_fr, gT_fr, gE_fr, gH_fr] = growth(kelp,envt,farm,ROMS_step)
 %   gE, light-limited growth
 %       from Dean and Jacobsen 1984
 %       calls on gE_vX
-%   gH, Sigmoidal rate decrease starting at 5% below max height
-%       essential a mathematical function to have smoothed, slowed growth
-%       rather than abrupt growth changes at max_height
+%   gH, carrying-capacity limited growth, from WASP manual Equation 33
+
 
 
 global param
-
-%% Kelp Input
-Q = kelp.Q;
-type = kelp.type;
-Height_tot = kelp.Height_tot;
-        
-
 %% gQ -> ranges from zero to 1
 
-    % Fronds, either subsurface or canopy, don't calc for senescing
-    % A trick so that senescing fronds do NOT grow (same approach applied
-    % in uptake
-    frond = type == 1 | type == 2;
-
-    gQ_fr = NaN(length(Q),1); 
-    gQ_fr(frond) = (Q(frond) - param.Qmin) ./ (param.Qmax - param.Qmin); 
-    gQ_fr(gQ_fr > 1) = 1;
-    gQ_fr(gQ_fr < 0) = 0;
+    gQ = (kelp.Q - param.Qmin) ./ (param.Qmax - param.Qmin); 
+    gQ(gQ > 1) = 1;
+    gQ(gQ < 0) = 0;
     
     
 %% gT -> ranges froms zero to 1
 
     % temp data
-    temp = envt.T(1:farm.z_cult,ROMS_step);
+    temp = envt.T(1:farm.z_cult,envt_counter)';
     
     gT = NaN(size(temp)); % preallocate space
         
@@ -60,8 +45,7 @@ Height_tot = kelp.Height_tot;
         gT(temp >= param.Tmax & temp <= param.Tlim) = m .* temp(temp >= param.Tmax & temp <= param.Tlim) + b;
         gT(temp > param.Tlim) = 0;
 
-    gT_fr = repmat(gT,1,length(Q))'; % repeat temperature effect across all fronds
-    clear gT temp
+    clear temp
     
     
 %% gE -> ranges from zero to 1
@@ -73,27 +57,26 @@ Height_tot = kelp.Height_tot;
     % and Jacobsen 1984; 50% growth at PAR ~2.5 and near 100% growth at
     % PAR ~7+
         
-        gE = 1-exp(param.kPAR*(envt.PARz-param.PARc));
+        gE = 1-exp(param.kPAR*(envt.PARz-param.PARc))';
         
         % If values < 0 replace with zero. We are explicitely modeling
         % mortality and so growth shouldn't be negative.
         gE(gE < 0) = 0;
         
-    gE_fr = repmat(gE,1,length(Q))'; % repear PAR effect across all fronds
-    clear gE PAR
+    clear PARz
        
         
 %% gH -> ranges from zero to 1           
+% as frond approaches carrying capacity; growth is limited (approaches
+% zero) -> space limitation effect
 
-    % as frond approaches Hmax ... growth approaches zero -> a mathematical
-    % solution to incorporate height limit
-    gH_fr = 0.5 + 0.5 .* tanh(-(Height_tot - (param.Hmax-0.05*param.Hmax)));
+    gH = 1-(nansum(kelp.B)./param.kcap).^2; % in units of g-dry
     
 
 %% Growth
 % per hour
 
-    Growth = param.umax .* gQ_fr .* gT_fr .* gE_fr .* gH_fr;
+    Growth = param.umax .* gQ .* gT .* gE .* gH;
 
 
 end
