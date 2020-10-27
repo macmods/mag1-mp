@@ -42,7 +42,7 @@ for year = 1999:2004
     envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
     
     % Simulation Output; preallocate space
-    kelp_b = NaN(farm.z_cult,length(time.timevec_Gr)); % integrated biomass per growth time step
+    kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
 
     % Seed the Farm (Initialize Biomass)
     % [frond ID, depth]
@@ -56,7 +56,7 @@ for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
-    kelp_b(:,gr_counter) = kelp.Nf./param.Qmin./1e3; % kg-dry/m
+    kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
     
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
@@ -81,7 +81,7 @@ figure
     for year = 1999:2004
     simid = sprintf('Y%d',year)
 
-    plot(mag1.(simid).kelp_b,'.')
+    plot(mag1.(simid).kelp_b,'k')
     hold on
     end
     

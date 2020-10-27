@@ -68,34 +68,17 @@ global param
      Nf_new = Nf + dNf1; % add dNf to Nf
 
      
-%% APICAL GROWTH
-% Nf redistributed upwards if Nf > km3. Evaluate each depth bin
-% separately from the bottom towards the surface. The surface is left alone
-% so that the canopy accumulates. The surface bin is z=1.
+%% VERTICAL DISTRIBUTION OF STATE VARIABLES
+% Nf distributed based on height-biomass relationships derived from
+% mag1_frond and saved in a table, b_per_m.mat. This table has been loaded
+% to param.b_per_m
 
-        
-    for z = farm.z_cult:-1:2 
+    hh = ceil(kelp.height);
+    Nf_new = nansum(Nf_new) .* param.b_per_m(:,hh)';
+    
+% Ns redistributed same as Nf to maintain Q along frond (translocation)
 
-        % delNf is the amount of biomass greater than
-        % km3. km3 is an input parameter, constant with depth. To improve
-        % upon need better distribution data of biomass with depth.
-        delNf = NaN(size(Nf_new(:,z)));       
-        delNf(Nf_new(:,z) > param.km3) = Nf_new(Nf_new(:,z) > param.km3,z) - param.km3; % then calculate the amount of Nf beyond capacity...
-        delNf(Nf_new(:,z) <= param.km3) = 0;
-
-        % redistribute Nf based upon a carrying capacity
-        Nf_new(delNf>0,z-1) = nansum([delNf(delNf>0) Nf_new(delNf>0,z-1)],2);
-        Nf_new(delNf>0,z) = param.km3;
-
-    end
-    clear z delNf
-                    
-                
-%% TRANSLOCATION
-% redustribute (translocation) as a function of fractional Nf
-
-    fNf = Nf_new ./ nansum(Nf_new,2);
-    Ns_new = nansum(Ns_new,2) .* fNf; % Ns at t+1
+    Ns_new = nansum(Ns_new) .* param.b_per_m(:,hh)';
 
 
 %% DON, PON

@@ -1,6 +1,9 @@
 function param = param_macrocystis
 % structure with the named parameters of the model
 
+    b_per_m = load('b_per_m');
+    b_per_m = b_per_m.b_per_m;
+    
     param = struct(...
         'VmaxNO3', 752,... % [umol N/m2/h]   
         'VmaxNH4', 739,... % [umol N/m2/h]    
@@ -22,7 +25,7 @@ function param = param_macrocystis
         'Hmax', 30,... % maximum height (m)
         'Kh', 0.75,... % shape of biomass-to-length relationship
         'kcap', 7e3,... % space limited capacity (g-dry m-2)
-        'km3', 0.1*1e3*10,... % vertical capacity in water column (mg N m-3)
+        'b_per_m', b_per_m,... % vertical capacity in water column (mg N m-3)
         'd_dissolved', 0.002/24,... % [h-1]
         'd_wave_m',0.000455,... % [h-1]
         'd_blade', 0.009/24, ... % [h-1]
