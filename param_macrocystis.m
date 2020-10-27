@@ -22,10 +22,10 @@ function param = param_macrocystis
         'Hmax', 30,... % maximum height (m)
         'Kh', 0.75,... % shape of biomass-to-length relationship
         'kcap', 7e3,... % space limited capacity (g-dry m-2)
+        'km3', 0.1*1e3*10,... % vertical capacity in water column (mg N m-3)
         'd_dissolved', 0.002/24,... % [h-1]
         'd_wave_m',0.000455,... % [h-1]
         'd_blade', 0.009/24, ... % [h-1]
-        'd_frond', 0.1/24,... % [h-1]
         'dry_wet',0.094,... % [g(dry)/g(wet)]
         'Biomass_surfacearea_subsurface', 32.2/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_watercolumn', 10.9/1e4,... % [m2/g(wet)]
