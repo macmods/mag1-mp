@@ -38,17 +38,17 @@ global param
     
     % DERIVED VARIABLES
     
-        kelp.Q = param.Qmin .* (1 + nansum(kelp.Ns,2) ./ nansum(kelp.Nf,2));
+        kelp.Q = param.Qmin .* (1 + nansum(kelp.Ns) ./ nansum(kelp.Nf));
         kelp.B = kelp.Nf ./ param.Qmin; % grams-dry
         kelp.type = frondtype(kelp.Nf,farm);
-        kelp.height = (param.Hmax .* nansum(kelp.B,2)./1e3 )./ (param.Kh + nansum(kelp.B,2)./1e3);
+        kelp.height = (param.Hmax .* nansum(kelp.B)./1e3 )./ (param.Kh + nansum(kelp.B)./1e3);
         
         % Blade to Stipe for blade-specific parameters
            
             % generate a fractional height
-            fh = flip([1:farm.z_cult]);
+            fh = flip([1:farm.z_cult])';
             fh = fh .* ~isnan(kelp.B);
-            fh = fh ./ kelp.height; fh(fh==0) = NaN;
+            fh = fh ./ kelp.height; fh(fh==0) = NaN; fh(fh>1) = 1;
             
             BtoS = param.Blade_stipe(1) - param.Blade_stipe(2) .* fh + param.Blade_stipe(3) .* fh .^ 2;
             kelp.frBlade = BtoS ./ (BtoS + 1);

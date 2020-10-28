@@ -12,6 +12,6 @@ function farm = farmdesign
     farm.z_cult = 20; %[m below surface]
     farm.z      = farm.z_cult; % [m]
     farm.dz     = 1; % [m]
-    farm.seeding= 10.998; % seeding biomass [g-dry m-1]; 
+    farm.seeding= 100; % seeding biomass [g-dry m-1]; 
     
 end

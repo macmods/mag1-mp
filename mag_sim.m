@@ -49,9 +49,9 @@ for year = 1999:2004
     kelp = seedfarm(farm);
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
+for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
-    gr_counter = growth_step / time.dt_Gr;% growth counter
+    gr_counter = sim_hour / time.dt_Gr;% growth counter
     envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
@@ -65,7 +65,12 @@ for growth_step = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
     kelp = mag(kelp,envt,farm,time,envt_counter);
-        
+    
+    %% FROND INITIATION
+    kelp = frondinitiation(kelp,envt,farm,time,gr_counter);
+    kelp = frondsenescence(kelp,time,sim_hour);   
+    
+    
 end
 clear growth_step gr_counter envt_counter 
 
@@ -88,3 +93,5 @@ figure
     xlabel('Day of Year')
     ylabel('Biomass (kg-dry/m2)')
     xlim([0 365])
+    
+    

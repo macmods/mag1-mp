@@ -74,32 +74,32 @@ global param
 % to param.b_per_m
 
     hh = ceil(kelp.height);
-    Nf_new = nansum(Nf_new) .* param.b_per_m(:,hh)';
+    Nf_new = nansum(Nf_new) .* param.b_per_m(:,hh);
     
 % Ns redistributed same as Nf to maintain Q along frond (translocation)
 
-    Ns_new = nansum(Ns_new) .* param.b_per_m(:,hh)';
+    Ns_new = nansum(Ns_new) .* param.b_per_m(:,hh);
 
 
 %% DON, PON
 
-% DON, the amount of kelp contribution to DON; [mg N] -> [mmol N/m3]
-%   There are three sources of DON contribution from the Ns pool
-%   1. dissolved loss
-%   2. blade erosion
-%   3. wave-based mortality
-
-    DON = (nansum(param.d_dissolved .* Ns) .* time.dt_Gr) ...
-        +  nansum(M_tot .* Ns) .* time.dt_Gr ...
-        ./ param.MW_N;
-  
-   
-% PON, the amount of kelp contribution to PON; [mg N/m3]
-%   There are three sources of PON contribution from the Nf pool
-%   1. blade erosion
-%   2. wave-based mortality
-
-    PON = nansum(M_tot .* Nf) .* time.dt_Gr;
+% % DON, the amount of kelp contribution to DON; [mg N] -> [mmol N/m3]
+% %   There are three sources of DON contribution from the Ns pool
+% %   1. dissolved loss
+% %   2. blade erosion
+% %   3. wave-based mortality
+% 
+%     DON = (nansum(param.d_dissolved .* Ns) .* time.dt_Gr) ...
+%         +  nansum(M_tot .* Ns) .* time.dt_Gr ...
+%         ./ param.MW_N;
+%   
+%    
+% % PON, the amount of kelp contribution to PON; [mg N/m3]
+% %   There are three sources of PON contribution from the Nf pool
+% %   1. blade erosion
+% %   2. wave-based mortality
+% 
+%     PON = nansum(M_tot .* Nf) .* time.dt_Gr;
 
                           
 

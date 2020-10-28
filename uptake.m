@@ -1,4 +1,4 @@
-function [UptakeN, UptakeFactor] = uptake(kelp,envt,farm,ROMS_step)
+function [UptakeN, UptakeFactor] = uptake(kelp,envt,farm,envt_counter)
 % Determination of uptake rate for nitrate, ammonium, and urea.
 %
 %   Input: (ENVT,Q,Type,farm)
@@ -24,24 +24,13 @@ function [UptakeN, UptakeFactor] = uptake(kelp,envt,farm,ROMS_step)
 global param
 
 
-%% KELP INPUT
-% temporary variables
-Q = kelp.Q;
-type = kelp.type;
-
-    % logical matrix to make calculations on frond types individually
-    % type 3 NOT included in uptake derivation (sensescing fronds)
-    subsurface = type==1; 
-    canopy     = type==2;
-
-    
 %% ENVT INPUT
 
-NO3 = envt.NO3(1:farm.z_cult,ROMS_step);
-NH4 = envt.NH4(1:farm.z_cult,ROMS_step);
-DON = envt.DON(1:farm.z_cult,ROMS_step);
-magu = envt.magu(1:farm.z_cult,ROMS_step);
-Tw = envt.Tw(1,ROMS_step);
+NO3 = envt.NO3(1:farm.z_cult,envt_counter);
+NH4 = envt.NH4(1:farm.z_cult,envt_counter);
+DON = envt.DON(1:farm.z_cult,envt_counter);
+magu = envt.magu(1:farm.z_cult,envt_counter);
+Tw = envt.Tw(1,envt_counter);
 
 
 %% Q                                        
@@ -49,10 +38,8 @@ Tw = envt.Tw(1,ROMS_step);
 % approaches zero as Q increases towards maximum; Possible that Q
 % is greater than Qmax. Set any negative values to zero.
 
-        UptakeFactor.vQ             = NaN(length(Q),1); % preallocate space
-        UptakeFactor.vQ(subsurface) = (param.Qmax-Q(subsurface))./(param.Qmax-param.Qmin);
-        UptakeFactor.vQ(canopy)     = (param.Qmax-Q(canopy))./(param.Qmax-param.Qmin);
-
+        UptakeFactor.vQ = (param.Qmax-kelp.Q)./(param.Qmax-param.Qmin);
+        
         % Ensure that uptake doesn't take a negative value
         UptakeFactor.vQ(UptakeFactor.vQ < 0) = 0;
         UptakeFactor.vQ(UptakeFactor.vQ > 1) = 1;
@@ -146,41 +133,29 @@ Tw = envt.Tw(1,ROMS_step);
 
                 % and multiply by Q limitation (vQ)
 
-                    % preallocate space
-                    UptakeFactor.Uptake_NO3_mass = NaN(length(type),farm.z_cult/farm.dz);
-                    UptakeFactor.Uptake_NH4_mass = NaN(length(type),farm.z_cult/farm.dz);
-                    UptakeFactor.Uptake_DON_mass = NaN(length(type),farm.z_cult/farm.dz);
-
-                    % Nitrate
+                if kelp.type == 1
                     
-                        % subsurface fronds (conversion from surface area to
-                        % biomass is dependent on frond type
-                        UptakeFactor.Uptake_NO3_mass(subsurface,:) = repmat(Uptake_NO3',nnz(subsurface),1) .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ(subsurface,1);
-                        % canopy portion of canopy frond has its own allometric
-                        % constants
-                        UptakeFactor.Uptake_NO3_mass(canopy,1)     = repmat(Uptake_NO3(1,:)',nnz(canopy),1).* param.Biomass_surfacearea_canopy*2     ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
-                        % subsurface portion of canopy frond has its own
-                        % allometric constants
-                        UptakeFactor.Uptake_NO3_mass(canopy,2:end) = repmat(Uptake_NO3(2:farm.z_cult,:)',nnz(canopy),1) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
-
-                    % Ammonium
+                    UptakeFactor.Uptake_NO3_mass = Uptake_NO3 .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_NH4_mass = Uptake_NH4 .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_DON_mass = Uptake_DON .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
                     
-                        UptakeFactor.Uptake_NH4_mass(subsurface,:) = repmat(Uptake_NH4',nnz(subsurface),1) .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ(subsurface,1);
-                        UptakeFactor.Uptake_NH4_mass(canopy,1)     = repmat(Uptake_NH4(1,:)',nnz(canopy),1).* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
-                        UptakeFactor.Uptake_NH4_mass(canopy,2:end) = repmat(Uptake_NH4(2:farm.z_cult,:)',nnz(canopy),1) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
-
-                    % DON*0.2 = Urea
+                elseif kelp.type == 2
                     
-                        UptakeFactor.Uptake_DON_mass(subsurface,:) = repmat(Uptake_DON',nnz(subsurface),1) .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ(subsurface,1);
-                        UptakeFactor.Uptake_DON_mass(canopy,1)     = repmat(Uptake_DON(1,:)',nnz(canopy),1).* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
-                        UptakeFactor.Uptake_DON_mass(canopy,2:end) = repmat(Uptake_DON(2:farm.z_cult,:)',nnz(canopy),1) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ(canopy,1);
+                    UptakeFactor.Uptake_NO3_mass(1,1) = Uptake_NO3(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_NO3_mass(2:farm.z_cult,1) = Uptake_NO3(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
 
+                    UptakeFactor.Uptake_NH4_mass(1,1) = Uptake_NH4(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_NH4_mass(2:farm.z_cult,1) = Uptake_NH4(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
 
+                    UptakeFactor.Uptake_DON_mass(1,1) = Uptake_DON(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_DON_mass(2:farm.z_cult,1) = Uptake_DON(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
+
+                end
+                
                 % Convert from umol -> mg N
                 % [mg N/g(dry)/h]
 
-
-                    Uptake_NO3_massN = UptakeFactor.Uptake_NO3_mass .* param.MW_N ./ 1e3 ; 
+                    Uptake_NO3_massN = UptakeFactor.Uptake_NO3_mass .* param.MW_N ./ 1e3; 
                     Uptake_NH4_massN = UptakeFactor.Uptake_NH4_mass .* param.MW_N ./ 1e3;
                     Uptake_DON_massN = UptakeFactor.Uptake_DON_mass .* param.MW_N ./ 1e3;
 

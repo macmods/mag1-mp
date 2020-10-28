@@ -26,15 +26,17 @@ function param = param_macrocystis
         'Kh', 0.75,... % shape of biomass-to-length relationship
         'kcap', 7e3,... % space limited capacity (g-dry m-2)
         'b_per_m', b_per_m,... % vertical capacity in water column (mg N m-3)
-        'd_dissolved', 0.002/24,... % [h-1]
+        'd_dissolved', 0.002/24,... % [h-1] 0.002 d-1
         'd_wave_m',0.000455,... % [h-1]
-        'd_blade', 0.009/24, ... % [h-1]
+        'd_blade', 0.0009/24, ... % [h-1] 0.009 d-1
+        'frond_init', [0.042/10/24 0.17/24],... % [h-1]
+        'age_max', 150*24,... % [h]
+        'd_frond', 0.1/24,... % [h-1] rate of senescence loss
         'dry_wet',0.094,... % [g(dry)/g(wet)]
         'Biomass_surfacearea_subsurface', 32.2/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_watercolumn', 10.9/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_canopy', 58.7/1e4,... % [m2/g(wet)]
         'Blade_stipe', [2.32 13.36 23.39],...
-        'remin', 0.01/24,... % [h-1]
         'MW_N', 14.006720); % [g/mol]
         
 end

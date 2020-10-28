@@ -29,7 +29,7 @@ global param
 %% gT -> ranges froms zero to 1
 
     % temp data
-    temp = envt.T(1:farm.z_cult,envt_counter)';
+    temp = envt.T(1:farm.z_cult,envt_counter);
     
     gT = NaN(size(temp)); % preallocate space
         
@@ -57,13 +57,11 @@ global param
     % and Jacobsen 1984; 50% growth at PAR ~2.5 and near 100% growth at
     % PAR ~7+
         
-        gE = 1-exp(param.kPAR*(envt.PARz-param.PARc))';
+        gE = 1-exp(param.kPAR*(envt.PARz-param.PARc));
         
         % If values < 0 replace with zero. We are explicitely modeling
         % mortality and so growth shouldn't be negative.
         gE(gE < 0) = 0;
-        
-    clear PARz
        
         
 %% gH -> ranges from zero to 1           
@@ -77,6 +75,7 @@ global param
 % per hour
 
     Growth = param.umax .* gQ .* gT .* gE .* gH;
+    Growth(isnan(kelp.Nf)) = NaN; % only retain values where kelp is present
 
 
 end
