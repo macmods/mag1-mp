@@ -68,8 +68,9 @@ global param
 % as frond approaches carrying capacity; growth is limited (approaches
 % zero) -> space limitation effect
 
-    gH = 1-(nansum(kelp.B)./param.kcap).^2; % in units of g-dry
-    
+    %gH = 1-(nansum(kelp.B)./param.kcap).^2; % in units of g-dry
+    gH = 0.5 + 0.5 .* tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)));
+
 
 %% Growth
 % per hour
