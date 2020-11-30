@@ -28,8 +28,8 @@
 
 clear all
 % Directories containing input environmental data
-dir_ROMS   = 'D:\github\mag1-mp\envtl_data\SBCfarm_';
-dir_WAVE   = 'D:\github\mag1-mp\envtl_data\';
+dir_ROMS   = 'D:\github\mag1-mp-m3\envtl_data\SBCfarm_';
+dir_WAVE   = 'D:\github\mag1-mp-m3\envtl_data\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
