@@ -28,25 +28,29 @@
 
 clear all
 % Directories containing input environmental data
-dir_ROMS   = 'D:\github\mag1-mp\envtl_data\SBCfarm_';
-dir_WAVE   = 'D:\github\mag1-mp\envtl_data\';
+%dir_ROMS   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\SBCfarm_';
+%dir_WAVE   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
 param = param_macrocystis; % should have a file per species
 
 % Simulation Input
-for year = 1999:2004
-    time = simtime([year 1 1; year 12 31]); % start time and stop time of simulation
+
+    % run for X days
+    time = simtime([1999 1 1; 1999 1 10]); % start time and stop time of simulation
     farm = farmdesign;  % loads 1-d farm
-    envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
+    
+    envt = envt_testcase(farm,time); % mean 1999 conditions
+    %envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
 
     % Seed the Farm (Initialize Biomass)
     % [frond ID, depth]
-    kelp = seedfarm(farm);
+    %kelp = seedfarm(farm);
+    load('max_initial_kelp.mat')
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
 for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
