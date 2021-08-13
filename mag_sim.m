@@ -78,24 +78,5 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 end
 clear growth_step gr_counter envt_counter 
 
-simid = sprintf('Y%d',year)
-mag1.(simid).kelp_b = kelp_b;
 
-end
-
-
-%% Figure of Output
-figure
-
-    for year = 1999:2004
-    simid = sprintf('Y%d',year)
-
-    plot(mag1.(simid).kelp_b,'k')
-    hold on
-    end
-    
-    xlabel('Day of Year')
-    ylabel('Biomass (kg-dry/m2)')
-    xlim([0 365])
-    
     
