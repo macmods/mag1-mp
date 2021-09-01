@@ -28,8 +28,8 @@
 
 clear all
 % Directories containing input environmental data
-dir_ROMS   = 'D:\github\mag1-mp-m3\envtl_data\SBCfarm_';
-dir_WAVE   = 'D:\github\mag1-mp-m3\envtl_data\';
+dir_ROMS   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\SBCfarm_';
+dir_WAVE   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
@@ -84,15 +84,19 @@ end
 %% Figure of Output
 figure
 
+    c=1;
     for year = 1999:2004
     simid = sprintf('Y%d',year)
 
+    subplot(6,1,c)
     plot(mag1.(simid).kelp_b,'k')
+    title(year)
+    ylabel('B (kg-dry/m2)')
+    xlim([0 365])
+    ylim([0 7])
     hold on
+    c=c+1;
     end
     
-    xlabel('Day of Year')
-    ylabel('Biomass (kg-dry/m2)')
-    xlim([0 365])
     
     
