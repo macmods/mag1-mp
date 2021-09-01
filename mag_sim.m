@@ -73,6 +73,7 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     %DPD edit
     temp_Ns = find_nan(kelp.Ns);  
     kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Ns)./param.Qmin./1e3; % kg-dry/m
+    kelp_h(1,gr_counter) = kelp.height;
     %disp('HEIGHT'), kelp.height
     b_per_m2 = make_Bm(kelp.height,farm);
     
