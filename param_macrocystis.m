@@ -37,7 +37,9 @@ function param = param_macrocystis
         'Biomass_surfacearea_watercolumn', 10.9/1e4,... % [m2/g(wet)]
         'Biomass_surfacearea_canopy', 58.7/1e4,... % [m2/g(wet)]
         'Blade_stipe', [2.32 13.36 23.39],...
-        'MW_N', 14.006720); % [g/mol]
+        'MW_N', 14.006720, .... % [g/mol].
+	'z_canopy', -2,... %[m], threshold for 'canopy' biomass ber meter formulation;
+	'B0', 0.05); %unit-less for make_Bm canopy profile, B0=const in subsurface 
         
 end
 

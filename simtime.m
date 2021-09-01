@@ -13,7 +13,7 @@ function time = simtime(duration)
     time.dt_Gr      = 1; % solve growth every X hours
     time.dt_ROMS    = 24; % based on extracted ROMS files
      
-    time.timevec_Gr = datenum(time.start):time.dt_Gr/24:datenum(time.start)+time.duration/24-1;
-    time.timevec_ROMS = datenum(time.start):time.dt_ROMS/24:datenum(time.start)+time.duration/24-1;
+    time.timevec_Gr = datenum(time.start):time.dt_Gr/24:datenum(time.start)+time.duration/24-1/24;
+    time.timevec_ROMS = datenum(time.start):time.dt_ROMS/24:datenum(time.start)+time.duration/24-1/24;
     
 end  

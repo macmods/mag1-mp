@@ -15,7 +15,9 @@ global param
 %% SUBSURFACE                    
 % if Nf at cultivation depth is > 0 = subsurface frond
 
-   type(Nf(farm.z_cult) > 0) = 1;
+   %DPD edit
+   type(Nf(farm.nz) >0) = 1;
+   %type(Nf(farm.z_cult) > 0) = 1;
 
 %% CANOPY
 % if Nf at surface is > 0 = canopy frond; this will replace

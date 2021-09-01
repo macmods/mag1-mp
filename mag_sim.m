@@ -28,8 +28,8 @@
 
 clear all
 % Directories containing input environmental data
-%dir_ROMS   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\SBCfarm_';
-%dir_WAVE   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\';
+dir_ROMS   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\SBCfarm_';
+dir_WAVE   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\';
 
 % Biological parameters used by MAG
 global param % made global and used by most functions; nothing within code changes param values
@@ -38,29 +38,43 @@ param = param_macrocystis; % should have a file per species
 % Simulation Input
 
     % run for X days
-    time = simtime([1999 1 1; 1999 1 10]); % start time and stop time of simulation
+    time = simtime([1999 1 1; 1999 12 31]); % start time and stop time of simulation
     farm = farmdesign;  % loads 1-d farm
     
-    envt = envt_testcase(farm,time); % mean 1999 conditions
-    %envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
+    %envt = envt_testcase(farm,time); % mean 1999 conditions
+    envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
 
     % Seed the Farm (Initialize Biomass)
     % [frond ID, depth]
-    %kelp = seedfarm(farm);
-    load('max_initial_kelp.mat')
+    kelp = seedfarm(farm);
+    %load('max_initial_kelp.mat')
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
+%Create arrays for storage
+Nf_nt = NaN(farm.nz,time.duration);
+Ns_nt = NaN(farm.nz,time.duration);
 
+
+for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
+%for sim_hour = time.dt_Gr:2
     gr_counter = sim_hour / time.dt_Gr;% growth counter
     envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
-    kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
+    Nf_nt(:,sim_hour) = kelp.Nf;
+    Ns_nt(:,sim_hour) = kelp.Ns;
+
+
+    %kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
+    %DPD edit
+    temp_Ns = find_nan(kelp.Ns);  
+    kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Ns)./param.Qmin./1e3; % kg-dry/m
+    %disp('HEIGHT'), kelp.height
+    b_per_m2 = make_Bm(kelp.height,farm);
     
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
@@ -69,14 +83,16 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
     kelp = mag(kelp,envt,farm,time,envt_counter);
-    
+    %Nf_nt(:,sim_hour) = kelp.Nf;
+    %Ns_nt(:,sim_hour) = kelp.Ns;  
     %% FROND INITIATION
     kelp = frondinitiation(kelp,envt,farm,time,gr_counter);
     kelp = frondsenescence(kelp,time,sim_hour);   
     
     
 end
+zs = farm.z_arr;
+save('Ns_Nf', 'Ns_nt', 'Nf_nt', 'zs');
 clear growth_step gr_counter envt_counter 
 
 
-    

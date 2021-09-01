@@ -37,20 +37,43 @@ global param
     % Ns, Nf 
     
     % DERIVED VARIABLES
-    
-        kelp.Q = param.Qmin .* (1 + nansum(kelp.Ns) ./ nansum(kelp.Nf));
+        
+        %DPD edit
+	%exclude NaNs from integration
+        temp_Ns = find_nan(kelp.Ns);
+	temp_Nf = find_nan(kelp.Nf);
+	%temp_Ns = kelp.Ns(~isnan(kelp.Ns));
+        %z_Ns    = farm.z_arr(~isnan(kelp.Ns));	
+        %temp_Nf = kelp.Nf(~isnan(kelp.Nf));
+        %z_Nf    = farm.z_arr(~isnan(kelp.Nf));	
+        %kelp.Q = param.Qmin .* (1 + nansum(kelp.Ns) ./ nansum(kelp.Nf));
+        kelp.Q = param.Qmin .* (1 + trapz(farm.z_arr,temp_Ns) ./ trapz(farm.z_arr,temp_Nf));
+
+
+
         kelp.B = kelp.Nf ./ param.Qmin; % grams-dry
         kelp.type = frondtype(kelp.Nf,farm);
-        kelp.height = (param.Hmax .* nansum(kelp.B)./1e3 )./ (param.Kh + nansum(kelp.B)./1e3);
-        
+        %DPD edit
+	temp_B = find_nan(kelp.B);
+	%z_B =  farm.z_arr(~isnan(kelp.B));
+        kelp.height = (param.Hmax .* trapz(farm.z_arr,temp_B)./1e3 )./ (param.Kh + trapz(farm.z_arr,temp_B)./1e3);
+        %kelp.height = (param.Hmax .* nansum(kelp.B)./1e3 )./ (param.Kh + nansum(kelp.B)./1e3);
+        %disp('B sum'), nansum(kelp.B) 
         % Blade to Stipe for blade-specific parameters
            
             % generate a fractional height
-            fh = flip([1:farm.z_cult])';
-            fh = fh .* ~isnan(kelp.B);
+            %fh = flip([1:farm.z_cult])';
+            %DPD edit
+	    fh = flip([1:farm.nz])';
+	    fh = fh .* ~isnan(kelp.B);
+	    %fh = fh .* ~isnan(kelp.B);
+	    %disp('fh pre'), fh
             fh = fh ./ kelp.height; fh(fh==0) = NaN; fh(fh>1) = 1;
             
+	    %disp('fh'), fh
             BtoS = param.Blade_stipe(1) - param.Blade_stipe(2) .* fh + param.Blade_stipe(3) .* fh .^ 2;
+	    %disp('BtoS'), BtoS
+
             kelp.frBlade = BtoS ./ (BtoS + 1);
             clear fh BtoS
         

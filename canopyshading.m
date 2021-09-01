@@ -30,7 +30,7 @@ global param
     PARo = envt.PAR(1,envt_counter);
 
     % preallocate space
-    PARz=NaN(farm.z_cult/farm.dz,1);
+    PARz=NaN(farm.nz,1);
 
 % Calculate attenuation coefficents and resulting PAR from surface to
 % cultivation depth

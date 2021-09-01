@@ -26,10 +26,16 @@ global param
 
 %% ENVT INPUT
 
-NO3 = envt.NO3(1:farm.z_cult,envt_counter);
-NH4 = envt.NH4(1:farm.z_cult,envt_counter);
-DON = envt.DON(1:farm.z_cult,envt_counter);
-magu = envt.magu(1:farm.z_cult,envt_counter);
+%NO3 = envt.NO3(1:farm.z_cult,envt_counter);
+%NH4 = envt.NH4(1:farm.z_cult,envt_counter);
+%DON = envt.DON(1:farm.z_cult,envt_counter);
+%magu = envt.magu(1:farm.z_cult,envt_counter);
+
+%DPD edit
+NO3 = envt.NO3(1:farm.nz,envt_counter);
+NH4 = envt.NH4(1:farm.nz,envt_counter);
+DON = envt.DON(1:farm.nz,envt_counter);
+magu = envt.magu(1:farm.nz,envt_counter);
 Tw = envt.Tw(1,envt_counter);
 
 
@@ -43,7 +49,7 @@ Tw = envt.Tw(1,envt_counter);
         % Ensure that uptake doesn't take a negative value
         UptakeFactor.vQ(UptakeFactor.vQ < 0) = 0;
         UptakeFactor.vQ(UptakeFactor.vQ > 1) = 1;
-
+        %disp('Vq'),UptakeFactor.vQ
 
         % Michaelis-Menten: Kinetically limited uptake only, for
         % exploratory, information purposes only. Not used to determine
@@ -78,22 +84,23 @@ Tw = envt.Tw(1,envt_counter);
             % match whole-frond drag estimates at low velocities
 
                 DBL = 10 .* (visc ./ (0.33 .* abs(magu)));
-
+                %disp('DBL'), DBL
         % There are two components of flow being considered. Calculate
         % contribution of each to uptake.
 
             % 1. Oscillatory Flow
-
-                val = NaN(farm.z_cult,n_length);
+                %dpd edit
+                val = NaN(farm.nz,n_length);
                 for n = 1:n_length
                     val(:,n) = (1-exp((-Dm.*n^2*pi^2.*Tw)./(2.*DBL.^2)))/(n^2*pi^2);
                 end
 
                 Oscillatory = ((4.*DBL)./Tw) .* sum(val,2);
-
+                %disp ('Oscillatory'), Oscillatory
             % 2. Uni-directional Flow
 
                 Flow = Dm ./ DBL;
+		%disp('Flow'), Flow
 
         % Mass-Transfer Limitation is the sum of these two types of flows
 
@@ -106,6 +113,11 @@ Tw = envt.Tw(1,envt_counter);
                 lambdaNO3 = 1 +  (param.VmaxNO3 ./ (Beta.*param.KsNO3)) - (NO3 ./ param.KsNO3);
                 lambdaNH4 = 1 +  (param.VmaxNH4 ./ (Beta.*param.KsNH4)) - (NH4 ./ param.KsNH4);
                 lambdaDON = 1 +  (param.VmaxDON ./ (Beta.*param.KsDON)) - (DON.*0.2.*1e3 ./ param.KsDON); % DON*0.2 = [urea]
+                %disp('lambdaNO3'), lambdaNO3(1)
+                %disp('lambdaNH4'), lambdaNH4(1)
+                %disp('lambdaDON'), lambdaDON(1)
+
+
 
                 % Below is what we call "Uptake Factor." It varies betwen 0
                 % and 1 and includes kinetically limited uptake and
@@ -115,6 +127,10 @@ Tw = envt.Tw(1,envt_counter);
                 UptakeFactor.UptakeFactor_NO3 = NO3 ./ (param.KsNO3 .* ((NO3./param.KsNO3)  + 1/2 .* (lambdaNO3+sqrt(lambdaNO3.^2 + 4 .* (NO3 ./ param.KsNO3)))));
                 UptakeFactor.UptakeFactor_NH4 = NH4 ./ (param.KsNH4 .* ((NH4./param.KsNH4)  + 1/2 .* (lambdaNH4+sqrt(lambdaNH4.^2 + 4 .* (NH4 ./ param.KsNH4)))));
                 UptakeFactor.UptakeFactor_DON = DON.*0.2.*1e3 ./ (param.KsDON .* ((DON.*0.2.*1e3./param.KsDON)  + 1/2 .* (lambdaDON+sqrt(lambdaDON.^2 + 4 .* (DON.*0.2.*1e3 ./ param.KsDON)))));
+                %disp('UptFNO3'), UptakeFactor.UptakeFactor_NO3(1)
+                %disp('UptFNH4'), UptakeFactor.UptakeFactor_NH4(1)
+                %disp('UptFDON'), UptakeFactor.UptakeFactor_DON(1)
+
 
         % Uptake Rate CALCULATION, for each N source
 
@@ -132,7 +148,7 @@ Tw = envt.Tw(1,envt_counter);
                 % [umol N/g(dry)/h]
 
                 % and multiply by Q limitation (vQ)
-
+                %disp('kelp type'), kelp.type
                 if kelp.type == 1
                     
                     UptakeFactor.Uptake_NO3_mass = Uptake_NO3 .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
