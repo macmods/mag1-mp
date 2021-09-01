@@ -47,7 +47,8 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     envt.NO3 = NO3.NO3(ROMS_extract,1:farm.z)';
     envt.NO3 = envt.NO3 .* 1e3; % umol/m3
     envt.NO3(envt.NO3 <= 0.01e3) = 0.01e3; % replace negatives
-
+    envt.NO3 = flip(envt.NO3);
+    
         clear NO3 filename
 
         
@@ -58,7 +59,8 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
 
     envt.NH4 = NH4.NH4(ROMS_extract,1:farm.z)';
     envt.NH4 = envt.NH4 .* 1e3; % umol/m3
-
+    envt.NH4 = flip(envt.NH4);
+    
         clear NH4 filename
 
         
@@ -68,6 +70,7 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     DON = load(filename);
     
     envt.DON = DON.DON(ROMS_extract,1:farm.z)';
+    envt.DON = flip(envt.DON);
     
         clear DON filename
 
@@ -78,6 +81,7 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     temp = load(filename);
     
     envt.T = temp.temp(ROMS_extract,1:farm.z)';
+    envt.T = flip(envt.T);
     
         clear temp filename
 
@@ -118,6 +122,8 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
 
 % Seawater magnitude velocity        
 envt.magu = sqrt(u.^2 + v.^2 + w.^2);
+envt.magu = flip(envt.magu);
+
 clear u v w
     
 %% PAR
@@ -132,6 +138,7 @@ clear u v w
     PAR = load(filename);
     
     envt.PAR = PAR.PAR(ROMS_extract,1)';
+    
     
         clear PAR filename
            
@@ -151,6 +158,7 @@ clear u v w
         + DIAZCHL.DIAZCHL(ROMS_extract,1:farm.z)'...
         + SPCHL.SPCHL(ROMS_extract,1:farm.z)';
     envt.chla(envt.chla < 0) = 0; % replace negatives
+    envt.chla = flip(envt.chla)
     
         clear DIATCHL DIAZCHL SPCHL filename1 filename2 filename3
             
