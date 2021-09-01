@@ -57,6 +57,7 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
     kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
+    kelp_h(1,gr_counter) = kelp.height;
     
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
