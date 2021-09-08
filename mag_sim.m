@@ -90,12 +90,13 @@ figure
     simid = sprintf('Y%d',year)
 
     subplot(6,1,c)
+    hold on
     plot(mag1.(simid).kelp_b,'k')
     title(year)
     ylabel('B (kg-dry/m2)')
     xlim([0 365])
-    ylim([0 7])
-    hold on
+    ylim([0 12])
+    box on
     c=c+1;
     end
     
