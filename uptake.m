@@ -26,12 +26,6 @@ global param
 
 %% ENVT INPUT
 
-%NO3 = envt.NO3(1:farm.z_cult,envt_counter);
-%NH4 = envt.NH4(1:farm.z_cult,envt_counter);
-%DON = envt.DON(1:farm.z_cult,envt_counter);
-%magu = envt.magu(1:farm.z_cult,envt_counter);
-
-%DPD edit
 NO3 = envt.NO3(1:farm.nz,envt_counter);
 NH4 = envt.NH4(1:farm.nz,envt_counter);
 DON = envt.DON(1:farm.nz,envt_counter);
@@ -96,12 +90,11 @@ Tw = envt.Tw(1,envt_counter);
                 end
 
                 Oscillatory = ((4.*DBL)./Tw) .* sum(val,2);
-                %disp ('Oscillatory'), Oscillatory
+                
             % 2. Uni-directional Flow
 
                 Flow = Dm ./ DBL;
-		%disp('Flow'), Flow
-
+		
         % Mass-Transfer Limitation is the sum of these two types of flows
 
                 Beta   = Flow + Oscillatory; 
@@ -113,12 +106,7 @@ Tw = envt.Tw(1,envt_counter);
                 lambdaNO3 = 1 +  (param.VmaxNO3 ./ (Beta.*param.KsNO3)) - (NO3 ./ param.KsNO3);
                 lambdaNH4 = 1 +  (param.VmaxNH4 ./ (Beta.*param.KsNH4)) - (NH4 ./ param.KsNH4);
                 lambdaDON = 1 +  (param.VmaxDON ./ (Beta.*param.KsDON)) - (DON.*0.2.*1e3 ./ param.KsDON); % DON*0.2 = [urea]
-                %disp('lambdaNO3'), lambdaNO3(1)
-                %disp('lambdaNH4'), lambdaNH4(1)
-                %disp('lambdaDON'), lambdaDON(1)
-
-
-
+                
                 % Below is what we call "Uptake Factor." It varies betwen 0
                 % and 1 and includes kinetically limited uptake and
                 % mass-transfer-limited uptake (oscillatory +
@@ -127,11 +115,7 @@ Tw = envt.Tw(1,envt_counter);
                 UptakeFactor.UptakeFactor_NO3 = NO3 ./ (param.KsNO3 .* ((NO3./param.KsNO3)  + 1/2 .* (lambdaNO3+sqrt(lambdaNO3.^2 + 4 .* (NO3 ./ param.KsNO3)))));
                 UptakeFactor.UptakeFactor_NH4 = NH4 ./ (param.KsNH4 .* ((NH4./param.KsNH4)  + 1/2 .* (lambdaNH4+sqrt(lambdaNH4.^2 + 4 .* (NH4 ./ param.KsNH4)))));
                 UptakeFactor.UptakeFactor_DON = DON.*0.2.*1e3 ./ (param.KsDON .* ((DON.*0.2.*1e3./param.KsDON)  + 1/2 .* (lambdaDON+sqrt(lambdaDON.^2 + 4 .* (DON.*0.2.*1e3 ./ param.KsDON)))));
-                %disp('UptFNO3'), UptakeFactor.UptakeFactor_NO3(1)
-                %disp('UptFNH4'), UptakeFactor.UptakeFactor_NH4(1)
-                %disp('UptFDON'), UptakeFactor.UptakeFactor_DON(1)
-
-
+                
         % Uptake Rate CALCULATION, for each N source
 
                 % Nutrient Uptake Rate = Max Uptake * UptakeFactor
@@ -148,25 +132,11 @@ Tw = envt.Tw(1,envt_counter);
                 % [umol N/g(dry)/h]
 
                 % and multiply by Q limitation (vQ)
-                %disp('kelp type'), kelp.type
-                if kelp.type == 1
                     
-                    UptakeFactor.Uptake_NO3_mass = Uptake_NO3 .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    UptakeFactor.Uptake_NH4_mass = Uptake_NH4 .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    UptakeFactor.Uptake_DON_mass = Uptake_DON .* param.Biomass_surfacearea_subsurface*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    
-                elseif kelp.type == 2
-                    
-                    UptakeFactor.Uptake_NO3_mass(1,1) = Uptake_NO3(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    UptakeFactor.Uptake_NO3_mass(2:farm.z_cult,1) = Uptake_NO3(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
-
-                    UptakeFactor.Uptake_NH4_mass(1,1) = Uptake_NH4(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    UptakeFactor.Uptake_NH4_mass(2:farm.z_cult,1) = Uptake_NH4(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
-
-                    UptakeFactor.Uptake_DON_mass(1,1) = Uptake_DON(1) .* param.Biomass_surfacearea_canopy*2 ./ param.dry_wet .* UptakeFactor.vQ;
-                    UptakeFactor.Uptake_DON_mass(2:farm.z_cult,1) = Uptake_DON(2:farm.z_cult) .* param.Biomass_surfacearea_watercolumn*2 ./ param.dry_wet .* UptakeFactor.vQ;
-
-                end
+                    UptakeFactor.Uptake_NO3_mass = Uptake_NO3 .* kelp.sa2b.*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_NH4_mass = Uptake_NH4 .* kelp.sa2b.*2 ./ param.dry_wet .* UptakeFactor.vQ;
+                    UptakeFactor.Uptake_DON_mass = Uptake_DON .* kelp.sa2b.*2 ./ param.dry_wet .* UptakeFactor.vQ;
+               
                 
                 % Convert from umol -> mg N
                 % [mg N/g(dry)/h]
@@ -180,6 +150,6 @@ Tw = envt.Tw(1,envt_counter);
 % [mg N/g(dry)/h]
 
     UptakeN = Uptake_NO3_massN + Uptake_NH4_massN + Uptake_DON_massN;
-    UptakeN(isnan(kelp.Nf)) = NaN; % only retain values where kelp is present
-
+    UptakeN(kelp.Nf == 0) = 0;
+   
 end

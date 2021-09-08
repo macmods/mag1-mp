@@ -29,7 +29,7 @@ global param
 %% gT -> ranges froms zero to 1
 
     % temp data
-    temp = envt.T(1:farm.z_cult,envt_counter);
+    temp = envt.T(1:farm.nz,envt_counter);
     
     gT = NaN(size(temp)); % preallocate space
         

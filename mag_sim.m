@@ -40,42 +40,38 @@ for year = 1999:2004
     time = simtime([year 1 1; year 12 31]); % start time and stop time of simulation
     farm = farmdesign;  % loads 1-d farm
     
+    % Load ENVT input for the year
     %envt = envt_testcase(farm,time); % mean 1999 conditions
     envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
+        
+    % Seed the Farm (Initialize Biomass)
+    % initial conditions (B,Q) set in farmdesign
+    % [frond ID, depth]
+    kelp = seedfarm(farm);
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
+    Nf_nt = NaN(farm.nz,length(time.timevec_Gr));
+    Ns_nt = NaN(farm.nz,length(time.timevec_Gr));
 
-    % Seed the Farm (Initialize Biomass)
-    % [frond ID, depth]
-    kelp = seedfarm(farm);
-    %load('max_initial_kelp.mat')
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-%Create arrays for storage
-Nf_nt = NaN(farm.nz,length(time.timevec_Gr));
-Ns_nt = NaN(farm.nz,length(time.timevec_Gr));
-
-
 for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
-%for sim_hour = time.dt_Gr:2
+
     gr_counter = sim_hour / time.dt_Gr;% growth counter
     envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
+    
+    % Output
     Nf_nt(:,gr_counter) = kelp.Nf;
     Ns_nt(:,gr_counter) = kelp.Ns;
-
-
-    %kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
-    %DPD edit
     temp_Nf = find_nan(kelp.Nf);  
     kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Nf)./param.Qmin./1e3; % kg-dry/m
     kelp_h(1,gr_counter) = kelp.height;
-    %disp('HEIGHT'), kelp.height
-    b_per_m2 = make_Bm(kelp.height,farm);
-    
+    clear temp_Nf
+   
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
     
@@ -83,8 +79,6 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     % updates Nf, Ns with uptake, growth, mortality, senescence
     % calculates DON and PON
     kelp = mag(kelp,envt,farm,time,envt_counter);
-    %Nf_nt(:,sim_hour) = kelp.Nf;
-    %Ns_nt(:,sim_hour) = kelp.Ns;
     
     %% FROND INITIATION
     kelp = frondinitiation(kelp,envt,farm,time,gr_counter);
@@ -113,7 +107,8 @@ figure
     title(year)
     ylabel('B (kg-dry/m2)')
     xlim([0 365])
-    ylim([0 7])
+    ylim([0 12])
+    box on
     c=c+1;
     end
     

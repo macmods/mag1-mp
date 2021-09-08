@@ -54,15 +54,6 @@ global param
          - param.d_dissolved .* Ns .* time.dt_Gr ... % exudation term
          - M_tot .* Ns .* time.dt_Gr; % wave-based mortality 
     
-    %disp('Ns'),kelp.Ns(1) 
-    %disp('B='), kelp.B(1)
-    %disp('Uptake='), Uptake(1)
-    %disp('frBlade='), kelp.frBlade(1)
-    %disp('dNs1'),dNs1(1)
-    %disp('Growth'), Growth(1)
-    %disp('Mort'), M_tot(1)
-    %disp('sum bperm'), sum(param.b_per_m(:,29))
-    %disp('trapz bperm'), trapz(param.b_per_m(:,29))
     Ns_new = Ns + dNs1;  % add dNs to Ns
 
     
@@ -82,25 +73,13 @@ global param
 % mag1_frond and saved in a table, b_per_m.mat. This table has been loaded
 % to param.b_per_m
 
-    hh = ceil(kelp.height);
-    b_per_m = make_Bm(kelp.height,farm);
-
-    %DPD edit
     temp_Nf = find_nan(Nf_new);
-    %temp_Nf = Nf_new(~isnan(Nf_new));
-    %z_Nf    = farm.z_arr(~isnan(Nf_new));
-    %Nf_new = nansum(Nf_new) .* param.b_per_m(:,hh);
-    Nf_new = trapz(farm.z_arr,temp_Nf) .* b_per_m;
+    Nf_new = trapz(farm.z_arr,temp_Nf) .* kelp.b_per_m;
     
-% Ns redistributed same as Nf to maintain Q along frond (translocation)
-    %DPD edit
+    % Ns redistributed same as Nf to maintain Q along frond (translocation)
+    
     temp_Ns = find_nan(Ns_new);
-    %inds_NaN = find(isnan(Ns_new)==1);
-    %temp_Ns = Ns_new;
-    %temp_Ns(inds_nan)=0;
-    %z_Ns    = farm.z_arr(~isnan(Ns_new));
-    %Ns_new = nansum(Ns_new) .* param.b_per_m(:,hh);
-    Ns_new = trapz(farm.z_arr,temp_Ns) .* b_per_m;
+    Ns_new = trapz(farm.z_arr,temp_Ns) .* kelp.b_per_m;
 
 
 

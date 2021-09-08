@@ -14,6 +14,9 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
 %
 % The ROMS simulations have been pre-processed and saved as mat files for
 % use by MAG.
+% Data is 1-m bins from surface to bottom depth.
+% Interpolate to the farm z-array.
+%
 % The NDCB data has been downloaded and saved as mat files for use by MAG.
 
 %% File Directory
@@ -37,6 +40,8 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     ROMS_extract  = idx_start:idx_stop;
     clear val start stop filename ROMS_time idx_start idx_stop
     
+    % depth domain of ROMS
+    ROMS_z = 0:1:59;
     
 % Load ROMS data and create variable to store boundary condition.
 %% Nitrate 
@@ -44,12 +49,14 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'NO3.mat');
     NO3 = load(filename);
 
-    envt.NO3 = NO3.NO3(ROMS_extract,1:farm.z)';
-    envt.NO3 = envt.NO3 .* 1e3; % umol/m3
+    NO3 = NO3.NO3(ROMS_extract,:);
+    for rr = 1:length(ROMS_extract)
+        envt.NO3(rr,:) = interp1(ROMS_z,NO3(rr,:),abs(farm.z_arr));
+    end
+    envt.NO3 = envt.NO3' .* 1e3; % umol/m3
     envt.NO3(envt.NO3 <= 0.01e3) = 0.01e3; % replace negatives
-    envt.NO3 = flip(envt.NO3);
     
-        clear NO3 filename
+        clear NO3 filename rr
 
         
 %% Ammonium
@@ -57,11 +64,13 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'NH4.mat');
     NH4 = load(filename);
 
-    envt.NH4 = NH4.NH4(ROMS_extract,1:farm.z)';
-    envt.NH4 = envt.NH4 .* 1e3; % umol/m3
-    envt.NH4 = flip(envt.NH4);
+    NH4 = NH4.NH4(ROMS_extract,:);
+    for rr = 1:length(ROMS_extract)
+        envt.NH4(rr,:) = interp1(ROMS_z,NH4(rr,:),abs(farm.z_arr));
+    end
+    envt.NH4 = envt.NH4' .* 1e3; % umol/m3
     
-        clear NH4 filename
+        clear NH4 filename rr
 
         
 %% DON
@@ -69,10 +78,13 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'DON.mat');
     DON = load(filename);
     
-    envt.DON = DON.DON(ROMS_extract,1:farm.z)';
-    envt.DON = flip(envt.DON);
+    DON = DON.DON(ROMS_extract,:);
+    for rr = 1:length(ROMS_extract)
+        envt.DON(rr,:) = interp1(ROMS_z,DON(rr,:),abs(farm.z_arr));
+    end
+    envt.DON = envt.DON';
     
-        clear DON filename
+        clear DON filename rr
 
 
 %% Temperature
@@ -80,10 +92,13 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'temp.mat');
     temp = load(filename);
     
-    envt.T = temp.temp(ROMS_extract,1:farm.z)';
-    envt.T = flip(envt.T);
+    T = temp.temp(ROMS_extract,:);
+    for rr = 1:length(ROMS_extract)
+        envt.T(rr,:) = interp1(ROMS_z,T(rr,:),abs(farm.z_arr));
+    end
+    envt.T = envt.T';
     
-        clear temp filename
+        clear temp filename T
 
             
 %% Seawater Velocity, u,v,w
@@ -92,7 +107,7 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'u.mat');
     u = load(filename);
     
-    u= u.u(ROMS_extract,1:farm.z)';
+    u= u.u(ROMS_extract,:);
     u = u .* 60 .* 60; % [m/h]
     
         clear filename
@@ -102,7 +117,7 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'v.mat');
     v = load(filename);
     
-    v = v.v(ROMS_extract,1:farm.z)';
+    v = v.v(ROMS_extract,:);
     v = v .* 60 .* 60; % [m/h]
     
         clear filename
@@ -114,17 +129,20 @@ function envt = envt_sb(farm,time,dir_ROMS,dir_WAVE)
     filename = strcat(dir_ROMS,'w.mat');
     w = load(filename);
     
-    w = w.w(ROMS_extract,1:farm.z)';
+    w = w.w(ROMS_extract,:);
     w = w .* 60 .* 60; % [m/h]
     w = w .* 0;
     
         clear filename
 
 % Seawater magnitude velocity        
-envt.magu = sqrt(u.^2 + v.^2 + w.^2);
-envt.magu = flip(envt.magu);
-
-clear u v w
+    magu = sqrt(u.^2 + v.^2 + w.^2);
+    for rr = 1:length(ROMS_extract)
+        envt.magu(rr,:) = interp1(ROMS_z,magu(rr,:),abs(farm.z_arr));
+    end
+    envt.magu = envt.magu';
+    
+clear u v w rr magu
     
 %% PAR
 
@@ -153,14 +171,17 @@ clear u v w
     DIAZCHL = load(filename2);
     SPCHL = load(filename3);
 
-    envt.chla = ...
-          DIATCHL.DIATCHL(ROMS_extract,1:farm.z)'...
-        + DIAZCHL.DIAZCHL(ROMS_extract,1:farm.z)'...
-        + SPCHL.SPCHL(ROMS_extract,1:farm.z)';
-    envt.chla(envt.chla < 0) = 0; % replace negatives
-    envt.chla = flip(envt.chla)
+    chla = ...
+          DIATCHL.DIATCHL(ROMS_extract,:)...
+        + DIAZCHL.DIAZCHL(ROMS_extract,:)...
+        + SPCHL.SPCHL(ROMS_extract,:);
+    chla(chla < 0) = 0; % replace negatives
+    for rr = 1:length(ROMS_extract)
+        envt.chla(rr,:) = interp1(ROMS_z,chla(rr,:),abs(farm.z_arr));
+    end
+    envt.chla = envt.chla';
     
-        clear DIATCHL DIAZCHL SPCHL filename1 filename2 filename3
+        clear DIATCHL DIAZCHL SPCHL filename1 filename2 filename3 chla rr
             
             
 %% Wave period, Significant wave height

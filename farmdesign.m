@@ -11,14 +11,15 @@ function farm = farmdesign
 
     farm.z_cult = 20; %[m below surface]
     farm.z      = farm.z_cult; % [m]
-    %farm.dz     = 1; % [m]
-    %DPD edit
-    % make depth array spaced evenly that extends to surface at z=0 m
-    %farm.z_arr  = linspace(-farm.z_cult,0,farm.z_cult+1);
-    %use above one when Nf,Ns .mat file is for 21 bins
-    farm.z_arr   = linspace(-farm.z_cult,0,farm.z_cult);
+    farm.z_arr   = linspace(-farm.z,0,farm.z_cult);
     farm.dz = farm.z_arr(2) - farm.z_arr(1);
     farm.nz = length(farm.z_arr);
-    farm.seeding= 100; % seeding biomass [g-dry m-1]; 
+    
+    % initial B/Q conditions
+    farm.seedingB = 100; % seeding biomass [g-dry m-1]; 
+    farm.seedingQ = 20; % seeding Q
+    
+    % 'canopy' starts at what depth
+    farm.canopy = 1; % what depth is canopy defined at...
     
 end

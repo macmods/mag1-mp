@@ -16,14 +16,14 @@ global param
 % if Nf at cultivation depth is > 0 = subsurface frond
 
    %DPD edit
-   type(Nf(farm.nz) >0) = 1;
+   type(Nf(farm.z_arr == -farm.z_cult) >0) = 1;
    %type(Nf(farm.z_cult) > 0) = 1;
 
 %% CANOPY
 % if Nf at surface is > 0 = canopy frond; this will replace
 % replaces subsurface category with canopy
 
-   type(Nf(1) > 0) = 2;
+   type(Nf(farm.z_arr > -farm.canopy) > 0) = 2;
 
 
 end    

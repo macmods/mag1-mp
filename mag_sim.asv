@@ -36,28 +36,26 @@ global param % made global and used by most functions; nothing within code chang
 param = param_macrocystis; % should have a file per species
 
 % Simulation Input
-
-    % run for X days
-    time = simtime([1999 1 1; 1999 12 31]); % start time and stop time of simulation
+for year = 1999:2004
+    time = simtime([year 1 1; year 12 31]); % start time and stop time of simulation
     farm = farmdesign;  % loads 1-d farm
     
+    % Load ENVT input for the year
     %envt = envt_testcase(farm,time); % mean 1999 conditions
     envt = envt_sb(farm,time,dir_ROMS,dir_WAVE); % Santa Barbara 
+        
+    % Seed the Farm (Initialize Biomass)
+    % initial conditions (B,Q) 
+    % [frond ID, depth]
+    kelp = seedfarm(farm);
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
+    Nf_nt = NaN(farm.nz,length(time.timevec_Gr));
+    Ns_nt = NaN(farm.nz,length(time.timevec_Gr));
 
-    % Seed the Farm (Initialize Biomass)
-    % [frond ID, depth]
-    kelp = seedfarm(farm);
-    %load('max_initial_kelp.mat')
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-%Create arrays for storage
-Nf_nt = NaN(farm.nz,time.duration);
-Ns_nt = NaN(farm.nz,time.duration);
-
-
 for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 %for sim_hour = time.dt_Gr:2
     gr_counter = sim_hour / time.dt_Gr;% growth counter
@@ -65,8 +63,8 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
-    Nf_nt(:,sim_hour) = kelp.Nf;
-    Ns_nt(:,sim_hour) = kelp.Ns;
+    Nf_nt(:,gr_counter) = kelp.Nf;
+    Ns_nt(:,gr_counter) = kelp.Ns;
 
 
     %kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
@@ -85,13 +83,40 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     % calculates DON and PON
     kelp = mag(kelp,envt,farm,time,envt_counter);
     %Nf_nt(:,sim_hour) = kelp.Nf;
-    %Ns_nt(:,sim_hour) = kelp.Ns;  
+    %Ns_nt(:,sim_hour) = kelp.Ns;
+    
     %% FROND INITIATION
     kelp = frondinitiation(kelp,envt,farm,time,gr_counter);
     kelp = frondsenescence(kelp,time,sim_hour);   
     
     
 end
+clear growth_step gr_counter envt_counter 
+
+simid = sprintf('Y%d',year)
+mag1.(simid).kelp_b = kelp_b;
+
+end
+
+
+%% Figure of Output
+figure
+
+    c=1;
+    for year = 1999:2004
+    simid = sprintf('Y%d',year)
+
+    subplot(6,1,c)
+    hold on
+    plot(mag1.(simid).kelp_b,'r')
+    title(year)
+    ylabel('B (kg-dry/m2)')
+    xlim([0 365])
+    ylim([0 7])
+    c=c+1;
+    end
+    
+    
 zs = farm.z_arr;
 save('Ns_Nf', 'Ns_nt', 'Nf_nt', 'zs');
 clear growth_step gr_counter envt_counter 
