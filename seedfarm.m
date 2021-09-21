@@ -26,8 +26,6 @@ global param
     %Calculate b_per_m
     b_per_m = make_Bm(height_seed,farm); 
     kelp.Nf = farm.seedingB .* param.Qmin .* b_per_m; % equivalent to a single 1 m frond; [mg N]
-    %kelp.Nf = farm.seeding .* param.Qmin .* param.b_per_m(:,height_seed); % equivalent to a single 1 m frond; [mg N]
-    %kelp.Ns = ((20-param.Qmin)*(farm.seeding .* param.Qmin .* param.b_per_m(:,height_seed)))/param.Qmin; % corresponds to a Q of 20
     kelp.Ns = ((farm.seedingQ-param.Qmin)*(farm.seedingB .* param.Qmin .* b_per_m))/param.Qmin; % corresponds to a Q of 20
 
 

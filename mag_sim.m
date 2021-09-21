@@ -48,6 +48,8 @@ for year = 1999:2004
     % initial conditions (B,Q) set in farmdesign
     % [frond ID, depth]
     kelp = seedfarm(farm);
+    % load a frond structure equivalent to test case intiial B
+    kelp.fronds = load('fronds_3kg.mat'); kelp.fronds = kelp.fronds.fronds;
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step

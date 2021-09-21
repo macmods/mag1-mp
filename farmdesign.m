@@ -16,8 +16,8 @@ function farm = farmdesign
     farm.nz = length(farm.z_arr);
     
     % initial B/Q conditions
-    farm.seedingB = 100; % seeding biomass [g-dry m-1]; 
-    farm.seedingQ = 20; % seeding Q
+    farm.seedingB = 3*1e3; % seeding biomass [100 g-dry m-1]; 
+    farm.seedingQ = 15; % seeding Q
     
     % 'canopy' starts at what depth
     farm.canopy = 1; % what depth is canopy defined at...
