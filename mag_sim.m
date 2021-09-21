@@ -58,7 +58,7 @@ for year = 1999:2004
 
 
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
+for sim_hour = time.dt_Gr:time.dt_Gr:104*time.dt_Gr%time.duration % [hours]
 
     gr_counter = sim_hour / time.dt_Gr;% growth counter
     envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter

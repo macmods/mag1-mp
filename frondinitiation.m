@@ -24,7 +24,7 @@ initiate = 1 / (param.frond_init(1) * kelp.Q + param.frond_init(2)); % from per 
     % light conditions at cultivation depth must be greater than
     % compensating light irradiance (PARc) 
     
-    if envt.PARz(1) > param.PARc
+    if envt.PARz(abs(farm.z_arr) == farm.z_cult) > param.PARc
         
         if gr_counter * time.dt_Gr >= max(kelp.fronds.start_age) + initiate
         
