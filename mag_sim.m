@@ -3,7 +3,7 @@
 %  20200630, Christina Frieder
 % 
 %  mag1 - model of macroalgal growth in 1-D
-%  volume-averaged; not tracking fronds
+%  volume-averaged; total biomass per volume
 %
 %  State Variables:
 %    NO3, Concentration of nitrate in seawater, [umol NO3/m3]
@@ -36,7 +36,8 @@ global param % made global and used by most functions; nothing within code chang
 param = param_macrocystis; % should have a file per species
 
 % Simulation Input
-for year = 1999:2004
+for year = 1999:2005 
+    
     time = simtime([year 1 1; year 12 31]); % start time and stop time of simulation
     farm = farmdesign;  % loads 1-d farm
     
@@ -47,18 +48,21 @@ for year = 1999:2004
     % Seed the Farm (Initialize Biomass)
     % initial conditions (B,Q) set in farmdesign
     % [frond ID, depth]
-    kelp = seedfarm(farm);
+    [kelp, harvest] = seedfarm(farm,time);
+    disp('Nf int'), trapz(farm.z_arr,kelp.Nf)
     % load a frond structure equivalent to test case intiial B
-    kelp.fronds = load('fronds_3kg.mat'); kelp.fronds = kelp.fronds.fronds;
+    %kelp.fronds = load('fronds_3kg.mat'); kelp.fronds = kelp.fronds.fronds;
     
     % Simulation Output; preallocate space
     kelp_b = NaN(1,length(time.timevec_Gr)); % integrated biomass per growth time step
-    Nf_nt = NaN(farm.nz,length(time.timevec_Gr));
-    Ns_nt = NaN(farm.nz,length(time.timevec_Gr));
+    %Nf_nt = NaN(farm.nz,length(time.timevec_Gr));
+    %Ns_nt = NaN(farm.nz,length(time.timevec_Gr));
+    %Bm_nt = NaN(farm.nz,length(time.timevec_Gr));
 
-
+    
 % MAG growth -> set up as dt_Gr loop for duration of simulation
-for sim_hour = time.dt_Gr:time.dt_Gr:104*time.dt_Gr%time.duration % [hours]
+bt = 0; % placeholder for harvest threshold
+for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     gr_counter = sim_hour / time.dt_Gr;% growth counter
     envt_counter = ceil(gr_counter*time.dt_Gr/time.dt_ROMS); % ROMS counter
@@ -66,14 +70,7 @@ for sim_hour = time.dt_Gr:time.dt_Gr:104*time.dt_Gr%time.duration % [hours]
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
     
-    % Output
-    Nf_nt(:,gr_counter) = kelp.Nf;
-    Ns_nt(:,gr_counter) = kelp.Ns;
-    temp_Nf = find_nan(kelp.Nf);  
-    kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Nf)./param.Qmin./1e3; % kg-dry/m
-    kelp_h(1,gr_counter) = kelp.height;
-    clear temp_Nf
-   
+       
     %% DERIVED ENVT
     envt.PARz  = canopyshading(kelp,envt,farm,envt_counter);
     
@@ -84,39 +81,69 @@ for sim_hour = time.dt_Gr:time.dt_Gr:104*time.dt_Gr%time.duration % [hours]
     
     %% FROND INITIATION
     kelp = frondinitiation(kelp,envt,farm,time,gr_counter);
-    kelp = frondsenescence(kelp,time,sim_hour);   
+    kelp = frondsenescence(kelp,time,sim_hour,gr_counter,harvest);  
     
+    %% HARVEST
+    % harvest is conditional
+    
+        temp_Nf = find_nan(kelp.Nf); 
+        canopyB = trapz(farm.z_arr,temp_Nf);
+        db = canopyB ./ param.Qmin ./ 1e3 - bt;
+        bt = canopyB ./ param.Qmin ./ 1e3; % for next iteration
+        
+        if canopyB > farm.b_threshold % is there enough harvestable canopy
+           if db < farm.h_threshold % biomass in canopy
+        
+           % which harvest number is it (for structure id); save date
+           harvest.counter(1,gr_counter) = farm.h_no;
+           
+           % chop off the canopy and store it in harvest structure
+           [harvest, kelp] = harvest_crit(harvest,kelp,farm,gr_counter);
+           farm.h_no = farm.h_no+1; % harvest counter 
+           end
+        end
+         
+    % Output
+    temp_Nf = find_nan(kelp.Nf); 
+    
+    kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Nf)./param.Qmin./1e3; % kg-dry/m
+    kelp_h(1,gr_counter) = kelp.height;
+    clear temp_Nf canopyB
+ 
     
 end
-clear growth_step gr_counter envt_counter 
+clear db bt envt_counter gr_counter sim_hour
 
-simid = sprintf('Y%d',year)
-mag1.(simid).kelp_b = kelp_b;
+figure
+plot(kelp_b)
+hold on
+plot(harvest.canopyB./1e3,'.r')
+title(year)
+
+%simid = sprintf('Y%d',year)
+%mag1.(simid).kelp_b = kelp_b;
 
 end
 
 
 %% Figure of Output
-figure
+%figure
 
-    c=1;
-    for year = 1999:2004
-    simid = sprintf('Y%d',year)
+ %   c=1;
+ %   for year = 1999:2004
+ %   simid = sprintf('Y%d',year)
 
-    subplot(6,1,c)
-    hold on
-    plot(mag1.(simid).kelp_b,'r')
-    title(year)
-    ylabel('B (kg-dry/m2)')
-    xlim([0 365])
-    ylim([0 12])
-    box on
-    c=c+1;
-    end
+ %   subplot(6,1,c)
+ %   hold on
+ %   plot(mag1.(simid).kelp_b,'r')
+ %   title(year)
+ %   ylabel('B (kg-dry/m2)')
+ %   xlim([0 365])
+ %   ylim([0 12])
+ %   box on
+ %   c=c+1;
+%   end
     
-    
-zs = farm.z_arr;
-save('Ns_Nf', 'Ns_nt', 'Nf_nt', 'zs');
-clear growth_step gr_counter envt_counter 
+
 
 

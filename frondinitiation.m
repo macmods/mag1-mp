@@ -23,17 +23,26 @@ initiate = 1 / (param.frond_init(1) * kelp.Q + param.frond_init(2)); % from per 
 
     % light conditions at cultivation depth must be greater than
     % compensating light irradiance (PARc) 
-    
-    if envt.PARz(abs(farm.z_arr) == farm.z_cult) > param.PARc
+    %disp('PARz Par C'), envt.PARz(abs(farm.z_arr) == farm.z_cult) 
+    %disp('PAR bot'), envt.PARz(1)
+    %disp('PARc'), param.PARc
+    %if envt.PARz(abs(farm.z_arr) == farm.z_cult) > param.PARc
+    if envt.PARz(1) > param.PARc % bottom grid cell is cultivation depth
+        %disp('maxf'), max(kelp.fronds.start_age)
+        %disp('initiate'), initiate	
+        %disp('max start'), max(kelp.fronds.start_age) + initiate   
         
         if gr_counter * time.dt_Gr >= max(kelp.fronds.start_age) + initiate
         
             % add Nf and Ns
+            %kelp.Nf(1) = kelp.Nf(1) + 109.98;
+            %kelp.Ns(1) = kelp.Ns(1) + (kelp.Q-param.Qmin)*109.98/param.Qmin;
             kelp.Nf(farm.z_arr == -farm.z_cult) = kelp.Nf(farm.z_arr == -farm.z_cult) + 109.98;
             kelp.Ns(farm.z_arr == -farm.z_cult) = kelp.Ns(farm.z_arr == -farm.z_cult) + (kelp.Q-param.Qmin)*109.98/param.Qmin;
-
+            %disp('frondinit'), gr_counter * time.dt_Gr
             % Frond characteristics
             next = max(kelp.fronds.id)+1;
+            
             kelp.fronds.id(next) = next; % add a frond
             kelp.fronds.start_age(next) = gr_counter * time.dt_Gr;
             kelp.fronds.end_age(next) = gr_counter * time.dt_Gr + param.age_max;

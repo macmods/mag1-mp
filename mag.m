@@ -48,12 +48,18 @@ global param
 
 % Ns(t+1) = Ns(t) + Uptake - Growth - Mortality 
 % For uptake, only biomass in blades (frBlade) contributes 
-
+    %disp('frBlade'), kelp.frBlade
     dNs1 = Uptake .* kelp.B .* kelp.frBlade .* time.dt_Gr ... % uptake contribution from blades only
          - Growth .* Ns .* time.dt_Gr ... % stored nitrogen lost due to growth
          - param.d_dissolved .* Ns .* time.dt_Gr ... % exudation term
          - M_tot .* Ns .* time.dt_Gr; % wave-based mortality 
-    
+    %disp('B'), kelp.B
+    %disp('Ns(top)'), Ns(20)	 
+    %disp('Upt'), Uptake
+    %disp('Gro'), Growth
+    %disp('M_tot'), M_tot(farm.nz)
+    %disp('dNS1'), dNs1(:)
+   
     Ns_new = Ns + dNs1;  % add dNs to Ns
 
     
@@ -64,7 +70,7 @@ global param
      % change in Nf
      dNf1 = Growth .* Ns .* time.dt_Gr ...
           - M_tot .* Nf .* time.dt_Gr;
-
+     
      Nf_new = Nf + dNf1; % add dNf to Nf
 
      
@@ -111,5 +117,5 @@ global param
 kelp.Nf = Nf_new;
 kelp.Ns = Ns_new;
 
-
+%disp('plant height'), kelp.height
 end

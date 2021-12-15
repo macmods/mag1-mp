@@ -64,17 +64,20 @@ global param
         % If values < 0 replace with zero. We are explicitely modeling
         % mortality and so growth shouldn't be negative.
         gE(gE < 0) = 0;
-        %disp('gE'), gE      
+        
+     
         
 %% gH -> ranges from zero to 1           
 % as frond approaches carrying capacity; growth is limited (approaches
 % zero) -> space limitation effect
 
-    %gH = 1-(nansum(kelp.B)./param.kcap).^2; % in units of g-dry
-    gH = 0.5 + 0.5 .* tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)));
-    %disp('tanh height'), kelp.height
-    %disp('matlab tanh'), tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)))
-    %disp('gH'), gH
+    temp_B = find_nan(kelp.B);
+    gH = 1-(trapz(farm.z_arr,temp_B)./param.kcap).^2; % in units of g-dry
+    
+    % This is an old representation from mag3
+    %gH = 0.5 + 0.5 .* tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)));
+
+
 
 %% Growth
 % per hour

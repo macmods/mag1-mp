@@ -1,4 +1,4 @@
-function kelp = seedfarm(farm)
+function [kelp, harvest] = seedfarm(farm,time)
 % Kelp, pre-allocation of MAG variables; Initialize farm biomass
 % Input: farm (z_cult, dz)
 % Output: 
@@ -9,14 +9,11 @@ function kelp = seedfarm(farm)
 
 %% Initialize kelp state variables and characteristics
 global param
-    %kelp.Ns = NaN(farm.z_cult/farm.dz,1);
-    %kelp.Nf = NaN(farm.z_cult/farm.dz,1);
+
     %DPD edit
     kelp.Ns = NaN(farm.nz,1);
     kelp.Nf = NaN(farm.nz,1);
-    %temp_Ns = kelp.Ns(~isnan(kelp.Ns))
-    %z_Ns   = farm.z_arr(~isnan(kelp.Ns))
-
+   
     
 %% Seed the farm
 % Nf, Ns (initial biomass set by farm.seeding)
@@ -40,4 +37,11 @@ global param
     
     kelp.fronds = table(id,start_age,end_age,status);
     
+%% Harvest array
+
+    harvest.canopyNf = NaN(1,length(time.timevec_Gr));
+    harvest.canopyNs = NaN(1,length(time.timevec_Gr));
+    harvest.canopyB = NaN(1,length(time.timevec_Gr));
+    harvest.counter = NaN(1,length(time.timevec_Gr));
+   
 end

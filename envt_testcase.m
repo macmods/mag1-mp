@@ -19,53 +19,53 @@ function envt = envt_testcase(farm,time)
 %% File Directory
              
     envt.NO3 = 1.557 .* 1e3; % umol/m3
-    envt.NO3 = repmat(envt.NO3,farm.z_cult,length(time.timevec_Gr));
+    envt.NO3 = repmat(envt.NO3,farm.nz,length(time.timevec_Gr));
         
 %% Ammonium
         
     envt.NH4 = 87.3; % umol/m3
-    envt.NH4 = repmat(envt.NH4,farm.z_cult,length(time.timevec_Gr));
+    envt.NH4 = repmat(envt.NH4,farm.nz,length(time.timevec_Gr));
     
         
 %% DON
         
     envt.DON = 3.07; % mmol/m3
-    envt.DON = repmat(envt.DON,farm.z_cult,length(time.timevec_Gr));
+    envt.DON = repmat(envt.DON,farm.nz,length(time.timevec_Gr));
    
 
 %% Temperature
     
     envt.T = 14.5; % umol/m3
-    envt.T = repmat(envt.T,farm.z_cult,length(time.timevec_Gr));
+    envt.T = repmat(envt.T,farm.nz,length(time.timevec_Gr));
    
             
 %% Seawater Velocity, u,v,w
 % Seawater magnitude velocity    
 
     envt.magu = 516; % m/h
-    envt.magu = repmat(envt.magu,farm.z_cult,length(time.timevec_Gr));
+    envt.magu = repmat(envt.magu,farm.nz,length(time.timevec_Gr));
    
 
 %% PAR
 
     envt.PAR = 86; % [W/m2]
-    envt.PAR = repmat(envt.PAR,farm.z_cult,length(time.timevec_Gr));
+    envt.PAR = repmat(envt.PAR,farm.nz,length(time.timevec_Gr));
            
             
 %% CHL-a
 % sum of three phytoplankton components
 
     envt.chla = 0.4; % 
-    envt.chla = repmat(envt.chla,farm.z_cult,length(time.timevec_Gr));
+    envt.chla = repmat(envt.chla,farm.nz,length(time.timevec_Gr));
           
             
 %% Wave period, Significant wave height
 
     envt.Tw = 0.0021; % [h]
-    envt.Tw = repmat(envt.Tw,farm.z_cult,length(time.timevec_Gr));
+    envt.Tw = repmat(envt.Tw,farm.nz,length(time.timevec_Gr));
     
     envt.Hs = 0.86; % [m]
-    envt.Hs = repmat(envt.Hs,farm.z_cult,length(time.timevec_Gr));
+    envt.Hs = repmat(envt.Hs,farm.nz,length(time.timevec_Gr));
        
     
 end

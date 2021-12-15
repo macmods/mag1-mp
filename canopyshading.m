@@ -18,9 +18,15 @@ global param
 
     % redistribute amount of Nf at surface 
     canopyHeight = kelp.height-farm.z_cult; canopyHeight(canopyHeight<1) = 1;
+    %disp('canopy height'), canopyHeight
     % below I am defining "canopy" as depths less than 1 meter; ...
-    Nf(farm.z_arr > -farm.canopy) = Nf(farm.z_arr > -farm.canopy) ./ canopyHeight; % divide Nf by length of frond
+    for k=1:length(farm.z_arr)
+	if farm.z_arr(k) > -farm.canopy
+	   Nf(k) = Nf(k)  / canopyHeight; 
+    end
+    %Nf(farm.z_arr > -farm.canopy) = Nf(farm.z_arr > -farm.canopy) ./ canopyHeight; % divide Nf by length of frond
 
+    %disp('Nf canopy'),  Nf(farm.z_arr > -farm.canopy)
     % replacement of NaN with zero for mathematical reasons   
     Nf(isnan(Nf)) = 0; 
 
@@ -46,15 +52,25 @@ global param
         else
             
         % attenuate with sum of three contributions
-        K = param.PAR_Ksw .* farm.dz...
-                + param.PAR_Kchla .* envt.chla(zz,envt_counter)...
-                + param.PAR_KNf   .* sum(Nf(zz+1));
-            
+        K = param.PAR_Ksw * farm.dz...
+	   + param.PAR_Kchla * envt.chla(zz,envt_counter)*farm.dz...
+	   + param.PAR_KNf * Nf(zz+1) * farm.dz;
+
+
+        %K = param.PAR_Ksw .* farm.dz...
+        %        + param.PAR_Kchla .*envt.chla(zz,envt_counter)...
+        %        + param.PAR_KNf   .* sum(Nf(zz+1));
+        %K = farm.dz*(param.PAR_Ksw + param.PAR_Kchla .*envt.chla(zz,envt_counter)...
+                %+ param.PAR_KNf   .* sum(Nf(zz+1)));
+
+        %disp(' zz='), zz 
+	%disp('klight='), K
+        %disp('zz='), zz	
+	%disp('sum(Nf(zz+1))'), sum(Nf(zz+1)) 
         PARz(zz) = PARz(zz+1) .* (exp(-K)); % output variable
-        
+               
         end
             
     end
        
-
 end

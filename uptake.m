@@ -90,7 +90,7 @@ Tw = envt.Tw(1,envt_counter);
                 end
 
                 Oscillatory = ((4.*DBL)./Tw) .* sum(val,2);
-                
+                %disp('sum val'), sum(val,2)                
             % 2. Uni-directional Flow
 
                 Flow = Dm ./ DBL;
@@ -98,7 +98,7 @@ Tw = envt.Tw(1,envt_counter);
         % Mass-Transfer Limitation is the sum of these two types of flows
 
                 Beta   = Flow + Oscillatory; 
-
+                %disp('Beta'), Beta
         % Kinetic+Mass-Transfer Limited Uptake, bring different components
         % to calcualte the Uptake Factor from Eq. 11 from Stevens and Hurd
         % 1997
