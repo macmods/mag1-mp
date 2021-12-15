@@ -14,9 +14,9 @@ global param
     lastharvest = find(~isnan(harvest.counter),1,'last');
     if ~isempty(lastharvest)
         % has it been more than two weeks since last cut
-        if time.timevec_Gr(gr_counter) > time.timevec_Gr(lastharvest)+14
-        kelp.fronds.status(kelp.fronds.end_age == 9999) = 3;
-        kelp.fronds.end_age(kelp.fronds.end_age == 9999) = NaN;
+        if time.timevec_Gr(gr_counter) > time.timevec_Gr(lastharvest)+10
+        kelp.fronds.status(kelp.fronds.end_age == 9e9) = 3;
+        kelp.fronds.end_age(kelp.fronds.end_age == 9e9) = NaN;
         end
     end
             

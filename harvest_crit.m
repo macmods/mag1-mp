@@ -8,29 +8,33 @@ global param
 
     % How much to remove
 
-        temp_B = find_nan(kelp.B);
-        sumB = trapz(farm.z_arr,temp_B); % g-dry
-
-        harvest.canopyB(1,gr_counter) = sumB - 1.1875.*1e3;
-        fracB = harvest.canopyB(1,gr_counter)/sumB;
-
+    % Need this much leftover
+    Nf_below_canopy = ((farm.z_cult - abs(param.z_canopy)) .* param.Kh) ./ (param.Hmax - (farm.z_cult - abs(param.z_canopy))) .* 1e3 .* param.Qmin;
+    
+        % Nf
         temp_Nf = find_nan(kelp.Nf);
-        sumNf = trapz(farm.z_arr,temp_Nf); % g-dry
-        harvest.canopyNf(1,gr_counter) = sumNf .* fracB;
+        sumNf = trapz(farm.z_arr,temp_Nf); 
+        harvest.canopyNf(1,gr_counter) = sumNf - Nf_below_canopy;
+        fracNf = harvest.canopyNf(1,gr_counter)/sumNf;
 
+        % Remove Ns as the same fraction as the amount of Nf removed
         temp_Ns = find_nan(kelp.Ns);
-        sumNs = trapz(farm.z_arr,temp_Ns); % g-dry
-        harvest.canopyNs(1,gr_counter) = sumNs .* fracB;
+        sumNs = trapz(farm.z_arr,temp_Ns); 
+        harvest.canopyNs(1,gr_counter) = sumNs .* fracNf;
 
+        temp_B = find_nan(kelp.B);
+        sumB = trapz(farm.z_arr,temp_B); 
+        harvest.canopyB(1,gr_counter) = sumB .* fracNf;
+       
 
     % convert X percent of fronds to senescence
     
         cut_i = find(kelp.fronds.status == 1);
-        cut_s = ceil(length(cut_i).*0.5);
+        cut_s = ceil(length(cut_i) .* param.harvest_frond);
         kelp.fronds.status(min(cut_i):min(cut_i)+cut_s-1) = 2;
         
         % replace those designated as senescing with a NaN end age so that natural senescence no longer over-rides
-        kelp.fronds.end_age(min(cut_i):min(cut_i)+cut_s-1) = 9999;
+        kelp.fronds.end_age(min(cut_i):min(cut_i)+cut_s-1) = 9e9;
         clear cut_i cut_s
 
         

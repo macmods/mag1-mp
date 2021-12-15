@@ -38,6 +38,7 @@ global param
     kelp.fronds = table(id,start_age,end_age,status);
     
 %% Harvest array
+% preallocate space
 
     harvest.canopyNf = NaN(1,length(time.timevec_Gr));
     harvest.canopyNs = NaN(1,length(time.timevec_Gr));

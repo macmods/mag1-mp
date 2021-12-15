@@ -45,9 +45,9 @@ global param
         %surface-area to biomass conversion (depth resolved)
         % canopy forming (has more surface area in canopy
         kelp.sa2b = NaN(farm.nz,1);
-        if any(kelp.Nf(farm.z_arr > -farm.canopy) > 0)
-        kelp.sa2b(farm.z_arr >= -farm.canopy) = param.Biomass_surfacearea_canopy;
-        kelp.sa2b(farm.z_arr < -farm.canopy) = param.Biomass_surfacearea_watercolumn;
+        if any(kelp.Nf(farm.z_arr > param.z_canopy) > 0)
+        kelp.sa2b(farm.z_arr >= param.z_canopy) = param.Biomass_surfacearea_canopy;
+        kelp.sa2b(farm.z_arr < param.z_canopy) = param.Biomass_surfacearea_watercolumn;
         else
         kelp.sa2b(1:farm.nz) = param.Biomass_surfacearea_subsurface;
         end

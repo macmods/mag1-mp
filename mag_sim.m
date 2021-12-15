@@ -27,6 +27,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all
+
 % Directories containing input environmental data
 dir_ROMS   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\SBCfarm_';
 dir_WAVE   = 'C:\Users\Christinaf\OneDrive - SCCWRP\macmods\github\mag1-mp-m3\envtl_data\';
@@ -49,8 +50,8 @@ for year = 1999:2005
     % initial conditions (B,Q) set in farmdesign
     % [frond ID, depth]
     [kelp, harvest] = seedfarm(farm,time);
-    disp('Nf int'), trapz(farm.z_arr,kelp.Nf)
-    % load a frond structure equivalent to test case intiial B
+    
+    % load a frond structure equivalent to test case intiial B (3 kg)
     %kelp.fronds = load('fronds_3kg.mat'); kelp.fronds = kelp.fronds.fronds;
     
     % Simulation Output; preallocate space
@@ -87,28 +88,32 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
     % harvest is conditional
     
         temp_Nf = find_nan(kelp.Nf); 
-        canopyB = trapz(farm.z_arr,temp_Nf);
-        db = canopyB ./ param.Qmin ./ 1e3 - bt;
-        bt = canopyB ./ param.Qmin ./ 1e3; % for next iteration
+        sumNf = trapz(farm.z_arr,temp_Nf);
         
-        if canopyB > farm.b_threshold % is there enough harvestable canopy
-           if db < farm.h_threshold % biomass in canopy
+        % find delta biomass (last time step = bt)
+        db = sumNf ./ param.Qmin ./ 1e3 - bt; % change in biomass between last step and this step
+        bt = sumNf ./ param.Qmin ./ 1e3; % for next time step
         
-           % which harvest number is it (for structure id); save date
-           harvest.counter(1,gr_counter) = farm.h_no;
+        
+        if sumNf > farm.harvestNf_threshold % CRITERIA #1 is there enough harvestable canopy
+        if db < param.h_threshold.*time.dt_Gr % CRITERIA #2 is the change in biomass decreasing
+        
+           % which harvest number is it
+           if isnan(max(harvest.counter))
+               harvest.counter(1,gr_counter) = 1;
+           else
+               harvest.counter(1,gr_counter) = max(harvest.counter) + 1;
+           end
            
            % chop off the canopy and store it in harvest structure
            [harvest, kelp] = harvest_crit(harvest,kelp,farm,gr_counter);
-           farm.h_no = farm.h_no+1; % harvest counter 
-           end
+           
+        end
         end
          
     % Output
-    temp_Nf = find_nan(kelp.Nf); 
-    
     kelp_b(1,gr_counter) = trapz(farm.z_arr,temp_Nf)./param.Qmin./1e3; % kg-dry/m
-    kelp_h(1,gr_counter) = kelp.height;
-    clear temp_Nf canopyB
+    clear temp_Nf 
  
     
 end

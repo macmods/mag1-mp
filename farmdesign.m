@@ -23,13 +23,19 @@ global param
     farm.seedingB = 0.1*1e3; % seeding biomass [100 g-dry m-1]; 
     farm.seedingQ = 15; % seeding Q
     
-    % 'canopy' starts at what depth
-    farm.canopy = 1; % what depth is canopy defined at...
+    % minimum harvestable biomass
+    % function of height
     
-    % Harvesting thresholds
-    farm.h_no = 1; % placeholder for harvest counter
-    farm.h_threshold = -0.02; % 
-    farm.b_threshold = 2.1875 .* 1e3 .* param.Qmin; % kg-dry to mg N in the canopy
+    % first step: using the B to height equation; calculate the amount of
+    % biomass that is equivalent to where the biomass will be cut (=
+    % canopy)
+    b_below_canopy = ((farm.z_cult - abs(param.z_canopy)) .* param.Kh) ./ (param.Hmax - (farm.z_cult - abs(param.z_canopy)));
+    
+    % now add to this the threshold biomass for harvesting
+    % [kg-dry] to Nf [mg N]
+    harvest_threshold = b_below_canopy + param.b_threshold; % this is what needs to be there
+    farm.harvestNf_threshold = harvest_threshold .* 1e3 .* param.Qmin;
+    clear b_below_canopy
     
     
 end
