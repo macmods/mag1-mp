@@ -70,6 +70,7 @@ for sim_hour = time.dt_Gr:time.dt_Gr:time.duration % [hours]
 
     %% DERIVED BIOLOGICAL CHARACTERISTICS
     kelp = kelpchar(kelp,farm);
+    kelp_b(1,gr_counter) = nansum(kelp.Nf)./param.Qmin./1e3; % kg-dry/m
     
        
     %% DERIVED ENVT
@@ -129,26 +130,5 @@ title(year)
 %mag1.(simid).kelp_b = kelp_b;
 
 end
-
-
-%% Figure of Output
-%figure
-
- %   c=1;
- %   for year = 1999:2004
- %   simid = sprintf('Y%d',year)
-
- %   subplot(6,1,c)
- %   hold on
- %   plot(mag1.(simid).kelp_b,'r')
- %   title(year)
- %   ylabel('B (kg-dry/m2)')
- %   xlim([0 365])
- %   ylim([0 12])
- %   box on
- %   c=c+1;
-%   end
-    
-
 
 
