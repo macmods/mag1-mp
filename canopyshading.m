@@ -17,10 +17,13 @@ global param
     Nf = kelp.Nf;
 
     % redistribute amount of Nf at surface 
-    canopyHeight = kelp.height-farm.z_cult; canopyHeight(canopyHeight<1) = 1;
-    Nf(:,1) = Nf(:,1) ./ canopyHeight; % divide Nf by length of frond
-
-    % replacement of NaN with zero for mathematical reasons   
+    canopyHeight = kelp.height-(farm.z_cult+param.z_canopy); canopyHeight(canopyHeight<1) = 1;
+    
+    % below I am redistributing "canopy"; ...
+    Nf(farm.z_arr > param.z_canopy) = Nf(farm.z_arr > param.z_canopy) ./ canopyHeight; 
+    
+    % replacement of NaN with zero for mathematical reasons; although
+    % shouldnt be any NaN
     Nf(isnan(Nf)) = 0; 
 
     
@@ -30,29 +33,29 @@ global param
     PARo = envt.PAR(1,envt_counter);
 
     % preallocate space
-    PARz=NaN(farm.z_cult/farm.dz,1);
+    PARz=NaN(farm.nz,1);
 
 % Calculate attenuation coefficents and resulting PAR from surface to
 % cultivation depth
     
-    for z = 1:farm.z_cult
+    for zz = length(farm.z_arr):-1:1
+        z = farm.z_arr(zz);
         
-        if z==1 
+        if z == 0 
             
-        PARz(z) = PARo; % no attenuation at surface
+        PARz(zz) = PARo; % no attenuation at surface
            
         else
             
         % attenuate with sum of three contributions
-        K = param.PAR_Ksw .* farm.dz...
-                + param.PAR_Kchla .* envt.chla(z,envt_counter)...
-                + param.PAR_KNf   .* sum(Nf(z-1));
-            
-        PARz(z) = PARz(z-1) .* (exp(-K)); % output variable
-        
+        K = param.PAR_Ksw * farm.dz...
+	   + param.PAR_Kchla * envt.chla(zz,envt_counter)*farm.dz...
+	   + param.PAR_KNf * Nf(zz+1) * farm.dz;
+
+        PARz(zz) = PARz(zz+1) .* (exp(-K)); % output variable
+               
         end
             
     end
        
-
 end
