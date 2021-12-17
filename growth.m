@@ -29,7 +29,7 @@ global param
 %% gT -> ranges froms zero to 1
 
     % temp data
-    temp = envt.T(1:farm.z_cult,envt_counter);
+    temp = envt.T(1:farm.nz,envt_counter);
     
     gT = NaN(size(temp)); % preallocate space
         
@@ -41,7 +41,9 @@ global param
             
             b = 1 / (-param.Tmax / param.Tlim + 1);
             m = 1 / (param.Tmax - param.Tlim);
-            
+            %disp('b'), b
+	    %disp('m'), m
+
         gT(temp >= param.Tmax & temp <= param.Tlim) = m .* temp(temp >= param.Tmax & temp <= param.Tlim) + b;
         gT(temp > param.Tlim) = 0;
 
@@ -62,14 +64,19 @@ global param
         % If values < 0 replace with zero. We are explicitely modeling
         % mortality and so growth shouldn't be negative.
         gE(gE < 0) = 0;
-       
+        
+     
         
 %% gH -> ranges from zero to 1           
 % as frond approaches carrying capacity; growth is limited (approaches
 % zero) -> space limitation effect
 
-    %gH = 1-(nansum(kelp.B)./param.kcap).^2; % in units of g-dry
-    gH = 0.5 + 0.5 .* tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)));
+    temp_B = find_nan(kelp.B);
+    gH = 1-(trapz(farm.z_arr,temp_B)./param.kcap).^2; % in units of g-dry
+    
+    % This is an old representation from mag3
+    %gH = 0.5 + 0.5 .* tanh(-(kelp.height - (param.Hmax-0.05*param.Hmax)));
+
 
 
 %% Growth
