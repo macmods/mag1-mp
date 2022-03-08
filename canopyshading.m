@@ -30,7 +30,7 @@ global param
 %% Attenuation of PAR with depth
 
     % PAR, incoming
-    PARo = envt.PAR(1,envt_counter);
+    PARo = envt.PAR(envt_counter);
 
     % preallocate space
     PARz=NaN(farm.nz,1);
@@ -49,7 +49,7 @@ global param
             
         % attenuate with sum of three contributions
         K = param.PAR_Ksw * farm.dz...
-	   + param.PAR_Kchla * envt.chla(zz,envt_counter)*farm.dz...
+	   + param.PAR_Kchla * envt.chla(zz)*farm.dz...
 	   + param.PAR_KNf * Nf(zz+1) * farm.dz;
 
         PARz(zz) = PARz(zz+1) .* (exp(-K)); % output variable

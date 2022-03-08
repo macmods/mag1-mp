@@ -33,7 +33,7 @@ global param
 % wave height [m]; Rodrigues et al. 2018 demonstrates linear relationship
 % between Hs and frond loss rate [h-1] (continuous)
 
-    M_wave  = param.d_wave_m .* envt.Hs(1,envt_counter);
+    M_wave  = param.d_wave_m .* envt.Hs(envt_counter);
 
 % d_blade = blade erosion [h-1] (continuous); Multiplied by the
 % frBlade -> fraction of total as blade

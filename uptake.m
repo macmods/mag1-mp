@@ -26,11 +26,11 @@ global param
 
 %% ENVT INPUT
 
-NO3 = envt.NO3(1:farm.nz,envt_counter);
-NH4 = envt.NH4(1:farm.nz,envt_counter);
-DON = envt.DON(1:farm.nz,envt_counter);
-magu = envt.magu(1:farm.nz,envt_counter);
-Tw = envt.Tw(1,envt_counter);
+NO3 = envt.NO3(:,envt_counter);
+NH4 = envt.NH4(:,envt_counter);
+DON = envt.DON(:,envt_counter);
+magu = envt.magu(:,envt_counter);
+Tw = envt.Tw(envt_counter);
 
 
 %% Q                                        

@@ -62,21 +62,23 @@ global param
             fh = diff(farm.z_arr)';
             fh(end+1) = fh(end);
             fh = cumsum(fh);
-            fh = fh .* (kelp.B > 0);
+            
+            fhn = fh .* squeeze((kelp.B > 0));
             %fh = fh .* ~isnan(kelp.B);
             %disp('fh pre'), fh
-            fh = fh ./ kelp.height; fh(fh==0) = NaN; fh(fh>1) = 1;
+            fhN = fhn./ kelp.height; 
+            fhN(fhN==0) = NaN;
+            fhN(fhN>1) = 1;
             
-	        BtoS = param.Blade_stipe(1) - param.Blade_stipe(2) .* fh + param.Blade_stipe(3) .* fh .^ 2;
+            
+	        BtoS = param.Blade_stipe(1) - param.Blade_stipe(2) .* fhN + param.Blade_stipe(3) .* fhN .^ 2;
 	    
             kelp.frBlade = BtoS ./ (BtoS + 1);
-            clear fh BtoS
+            clear fh fhn fhN BtoS
             
         % biomass per m (for growth)
-        
         kelp.b_per_m = make_Bm(kelp.height,farm);
-    
         
-clear Ns Nf 
+
 
 end

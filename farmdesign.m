@@ -15,7 +15,7 @@ global param
     farm.z_cult = 20; %[m below surface]
     farm.z      = farm.z_cult; % [m]
     %farm.z_arr   = linspace(-farm.z,0,farm.z_cult);
-    farm.z_arr = linspace(-farm.z,0,100);
+    farm.z_arr = linspace(-farm.z,0,20);
     farm.dz = farm.z_arr(2) - farm.z_arr(1);
     farm.nz = length(farm.z_arr);
     
